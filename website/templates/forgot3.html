@@ -105,7 +105,7 @@
 
     <div class="change-container">
         <h2>Change Password</h2>
-        <form action="{{ url_for('main.change_password') }}" method="POST">
+        <form action="{{ url_for('account_routes.change_password') }}" method="POST">
             <input type="password" id="password" name="password" placeholder="New Password" oninput="validatePasswords()" required>
             <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm Password" oninput="validatePasswords()" required>
             <p id="error-text" class="error-text">Passwords do not match</p>

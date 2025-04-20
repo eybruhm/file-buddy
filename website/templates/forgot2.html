@@ -111,7 +111,7 @@
     <a href="/forgot-password" class="back-arrow">&#8592; Back</a>
     <div class="forgot-container">
         <h2>Forgot Password</h2>
-        <form action="{{ url_for('main.forgot_password_verify_otp') }}" method="POST">
+        <form action="{{ url_for('account_routes.forgot_password_verify_otp') }}" method="POST">
             <input type="text" id="code" name="otp" placeholder="Enter 6-digit code" maxlength="6" oninput="validateOTP()" >
             <button type="submit" id="resendCode" name="resend" value="true">Resend</button>
             <button type="submit" id="confirmBtn" disabled>Confirm</button>

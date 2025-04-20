@@ -108,7 +108,7 @@
     <a href="/login" class="back-arrow">&#8592; Back</a>
     <div class="forgot-container">
         <h2>Forgot Password</h2>
-        <form action="{{ url_for('main.forgot_password_identify_email') }}" method="POST">
+        <form action="{{ url_for('account_routes.forgot_password_identify_email') }}" method="POST">
             <input type="email" id="email" name="email" placeholder="Enter your email" required>
             <button type="submit" id="sendCode">Send Code</button>
         </form>

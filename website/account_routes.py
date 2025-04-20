@@ -10,11 +10,11 @@ from functools import wraps
 
 
 # Define the Blueprint
-main = Blueprint('main', __name__)
+account_routes = Blueprint('account_routes', __name__)
 
 # Initialize Flask-Login
 login_manager = LoginManager()
-login_manager.login_view = "main.login"  # Redirect unauthorized users to login page
+login_manager.login_view = "account_routes.login"  # Redirect unauthorized users to login page
 
 # ✅ Load User Function (Needed for Flask-Login)
 @login_manager.user_loader
@@ -31,7 +31,7 @@ def block_logged_in_users(f):
         # ✅ If a user is already logged in, they should not access forgot password or signup/login routes
         if current_user.is_authenticated:
             flash("You are already logged in.", "warning")
-            return redirect(url_for('main.dashboard'))  # 🔄 Redirect to dashboard
+            return redirect(url_for('account_routes.dashboard'))  # 🔄 Redirect to dashboard
         return f(*args, **kwargs)  # ✅ Continue to route function if not logged in
     return decorated_function
 
@@ -43,12 +43,12 @@ def require_forgot_email_identification(f):
         # ✅ Prevent access if user is already logged in
         if current_user.is_authenticated:
             flash("You are already logged in.", "warning")
-            return redirect(url_for('main.dashboard'))  # 🔄 Redirect to dashboard
+            return redirect(url_for('account_routes.dashboard'))  # 🔄 Redirect to dashboard
 
         # 🔍 Check if the session has the required email + OTP data from step 1
         if 'forgot_password_data' not in session:
             flash("You must verify your email first.", "warning")
-            return redirect(url_for('main.forgot_password_identify_email'))  # ⛔ Block access and redirect to step 1
+            return redirect(url_for('account_routes.forgot_password_identify_email'))  # ⛔ Block access and redirect to step 1
         return f(*args, **kwargs)  # ✅ Continue to route function if session is valid
     return decorated_function
 
@@ -60,7 +60,7 @@ def require_verified_otp(f):
         # 🚫 Block if user is already logged in
         if current_user.is_authenticated:
             flash("You are already logged in.", "warning")
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('account_routes.dashboard'))
 
         # 🔍 Get the session data
         forgot_data = session.get('forgot_password_data')
@@ -68,7 +68,7 @@ def require_verified_otp(f):
         # 🔒 Block if no session or OTP not verified
         if not forgot_data or not forgot_data.get('otp_verified'):
             flash("Please verify the OTP sent to your email first.", "warning")
-            return redirect(url_for('main.forgot_password_verify_otp'))
+            return redirect(url_for('account_routes.forgot_password_verify_otp'))
 
         # ✅ Passed all checks
         return f(*args, **kwargs)
@@ -80,19 +80,19 @@ def require_verified_otp(f):
 # ===========================
 # 🚀 HOME ROUTE (Redirect logged-in users)
 # ===========================
-@main.route('/')
+@account_routes.route('/')
 def home():
     if current_user.is_authenticated:  # ✅ If logged in, redirect to dashboard
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('account_routes.dashboard'))
     return render_template('index.html')
 
 # ===========================
 # 🚀 LOGIN ROUTE (Redirect logged-in users)
 # ===========================
-@main.route('/login', methods=['GET', 'POST'])
+@account_routes.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:  # ✅ If logged in, redirect to dashboard
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('account_routes.dashboard'))
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -103,12 +103,12 @@ def login():
 
         if not user:
             flash("Email not found. Please sign up.", "danger")
-            return redirect(url_for('main.login'))  # Redirect to login page
+            return redirect(url_for('account_routes.login'))  # Redirect to login page
         
         # 🔹 Check if password matches
         if not check_password_hash(user["password_hashed"], password):
             flash("Incorrect password. Please try again.", "danger")
-            return redirect(url_for('main.login'))
+            return redirect(url_for('account_routes.login'))
 
         # ✅ Create a User instance
         user_obj = User(user_id=str(user["_id"]), username=user["username"], email=user["email"])
@@ -117,7 +117,7 @@ def login():
         login_user(user_obj)
 
         flash(f"Welcome, {user['username']}!", "success")
-        return redirect(url_for('main.dashboard'))  # 🚀 Redirect after login
+        return redirect(url_for('account_routes.dashboard'))  # 🚀 Redirect after login
 
     return render_template('login.html')
 
@@ -125,7 +125,7 @@ def login():
 # ===========================
 # 🚀 FORGOT PASSWORD 1 ROUTE [FOR LOGIN.HTML TO REDIRECT TO FORGOT1.HTML]
 # ===========================
-@main.route('/forgot-password')
+@account_routes.route('/forgot-password')
 def forgot_password():
     return render_template('forgot1.html')
 
@@ -133,7 +133,7 @@ def forgot_password():
 # ===========================
 # 🚀 DASHBOARD ROUTE (Restrict non-logged-in users)
 # ===========================
-@main.route('/dashboard')
+@account_routes.route('/dashboard')
 @login_required  # ✅ Restrict access to logged-in users
 def dashboard():
     return render_template('home.html', username=current_user.username)
@@ -141,12 +141,12 @@ def dashboard():
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-@main.route('/upload')
+@account_routes.route('/upload')
 @login_required  # ✅ Restrict access to logged-in users
 def upload():
     return render_template('upload.html', username=current_user.username)
 
-@main.route('/browse')
+@account_routes.route('/browse')
 @login_required  # ✅ Restrict access to logged-in users
 def browse():
     return render_template('browse.html', username=current_user.username)
@@ -157,21 +157,21 @@ def browse():
 # ===========================
 # 🚀 LOGOUT ROUTE
 # ===========================
-@main.route('/logout')
+@account_routes.route('/logout')
 @login_required  # ✅ Only logged-in users can log out
 def logout():
     logout_user()
     flash('You have been logged out.', 'success')
-    return redirect(url_for('main.login'))
+    return redirect(url_for('account_routes.login'))
 
 
 # ===========================
 # 🚀 SIGNUP ROUTE (Redirect logged-in users)
 # ===========================
-@main.route('/signup', methods=['GET', 'POST'])
+@account_routes.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:  # ✅ If logged in, redirect to dashboard
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('account_routes.dashboard'))
 
     if request.method == 'POST':
         username = request.form.get('username')
@@ -182,29 +182,29 @@ def signup():
         # 🔹 Validate username length (2-15 characters)
         if len(username) < 2 or len(username) > 15:
             flash('Username must be between 2 and 15 characters.', 'danger')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('account_routes.signup'))
 
         # 🔹 Validate password length (minimum 8 characters)
         if len(password) < 8:
             flash('Password must be at least 8 characters long.', 'danger')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('account_routes.signup'))
 
         # 🔹 Check if passwords match
         if password != confirm_password:
             flash('Passwords do not match.', 'danger')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('account_routes.signup'))
 
         # 🔹 Check if email already exists
         existing_user = mongo.db.users.find_one({"email": email})
         if existing_user:
             flash('Email is already registered. Please log in.', 'danger')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('account_routes.signup'))
         
         # 🔹 Check if username already exists
         existing_user = mongo.db.users.find_one({"username": username})
         if existing_user:
             flash('Username is already taken. Please change it.', 'danger')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('account_routes.signup'))
 
         # ✅ If all checks pass, generate a 6-digit verification code
         verification_code = str(random.randint(100000, 999999))
@@ -221,7 +221,7 @@ def signup():
         send_verification_email(email, verification_code)
 
         # ✅ Redirect to email verification page
-        return redirect(url_for('main.email_verification'))
+        return redirect(url_for('account_routes.email_verification'))
 
     return render_template('signup.html')
 
@@ -229,10 +229,10 @@ def signup():
 # ===========================
 # 🚀 EMAIL VERIFICATION ROUTE
 # ===========================
-@main.route('/email_verification', methods=['GET', 'POST'])
+@account_routes.route('/email_verification', methods=['GET', 'POST'])
 def email_verification():
     if current_user.is_authenticated:  # ✅ If logged in, redirect to dashboard
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('account_routes.dashboard'))
 
     if request.method == 'POST':
         entered_code = request.form.get('verification_code')
@@ -242,7 +242,7 @@ def email_verification():
 
         if not signup_data:
             flash('Session expired. Please sign up again.', 'danger')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('account_routes.signup'))
 
         # 🔹 Check if the entered code matches the stored code
         if entered_code == signup_data['verification_code']:
@@ -266,7 +266,7 @@ def email_verification():
 
             # ✅ Redirect to dashboard
             flash('Account created successfully! You can now log in.', 'success')
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('account_routes.dashboard'))
         else:
             flash('Invalid verification code. Please try again.', 'danger')
 
@@ -277,15 +277,15 @@ def email_verification():
 # ===========================
 # 🚀 SIGN UP EMAIL VERIFICATION RESEND CODE [EMAILVERIFY.HTML]
 # ===========================
-@main.route('/resend_verification', methods=['POST'])
+@account_routes.route('/resend_verification', methods=['POST'])
 def resend_verification():
     if current_user.is_authenticated:  # ✅ Prevent logged-in users from resending
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('account_routes.dashboard'))
 
     signup_data = session.get('signup_data')
     if not signup_data:
         flash("Session expired. Please sign up again.", "danger")
-        return redirect(url_for('main.signup'))
+        return redirect(url_for('account_routes.signup'))
 
     email = signup_data['email']
     new_code = str(random.randint(100000, 999999))
@@ -297,7 +297,7 @@ def resend_verification():
     send_verification_email(email, new_code)
 
     flash("New verification code sent to your email.", "success")
-    return redirect(url_for('main.email_verification'))
+    return redirect(url_for('account_routes.email_verification'))
 
 # ===========================
 # 🚀 SIGN UP EMAIL VERIFICATION
@@ -351,7 +351,7 @@ def forgot_password_verification_email(email, code):
 # ===========================
 # 🚀 FORGOT PASSWORD STEP 1: IDENTIFY EMAIL 
 # ===========================
-@main.route('/forgot-password-identify-email', methods=['GET', 'POST'])
+@account_routes.route('/forgot-password-identify-email', methods=['GET', 'POST'])
 @block_logged_in_users  # 🔒 Only allow logged out users
 def forgot_password_identify_email():
     if request.method == 'POST':
@@ -362,7 +362,7 @@ def forgot_password_identify_email():
 
         if not user:
             flash("Email not found. Please sign up.", "danger")  # Flash message if email doesn't exist
-            return redirect(url_for('main.forgot_password_identify_email'))  # Redirect to same page
+            return redirect(url_for('account_routes.forgot_password_identify_email'))  # Redirect to same page
 
         # ✅ Generate a 6-digit OTP code
         otp_code = str(random.randint(100000, 999999))
@@ -379,14 +379,14 @@ def forgot_password_identify_email():
         flash("A verification code has been sent to your email.", "success")
         
         # ✅ Redirect to OTP verification page (forgot2.html)
-        return redirect(url_for('main.forgot_password_verify_otp'))  # Route to OTP verification page
+        return redirect(url_for('account_routes.forgot_password_verify_otp'))  # Route to OTP verification page
 
     return render_template('forgot1.html')  # Render the forgot1.html page if GET request
 
 # ===========================
 # 🚀 FORGOT PASSWORD STEP 2: OTP VERIFICATION
 # ===========================
-@main.route('/forgot-password-verify-otp', methods=['GET', 'POST'])
+@account_routes.route('/forgot-password-verify-otp', methods=['GET', 'POST'])
 @require_forgot_email_identification  # 🔒 Require step 1 completion + logged out
 def forgot_password_verify_otp():
     if request.method == 'POST':
@@ -398,7 +398,7 @@ def forgot_password_verify_otp():
 
         if not forgot_password_data:
             flash("Session expired. Please start the process again.", "danger")
-            return redirect(url_for('main.forgot_password_identify_email'))  # Redirect to email identification page
+            return redirect(url_for('account_routes.forgot_password_identify_email'))  # Redirect to email identification page
 
         stored_otp = forgot_password_data.get('otp_code')
         email = forgot_password_data.get('email')
@@ -417,7 +417,7 @@ def forgot_password_verify_otp():
             # ✅ Store flag that OTP was verified
             session['forgot_password_data']['otp_verified'] = True
             flash("OTP verified successfully. You can now reset your password.", "success")
-            return redirect(url_for('main.change_password'))
+            return redirect(url_for('account_routes.change_password'))
 
 
         else:
@@ -429,7 +429,7 @@ def forgot_password_verify_otp():
 # ===========================
 # 🚀 FORGOT PASSWORD STEP 3 : CHANGE PASSWORD
 # ===========================
-@main.route('/change-password', methods=['GET', 'POST'])
+@account_routes.route('/change-password', methods=['GET', 'POST'])
 @require_verified_otp  # ✅ Only allow if OTP verified
 def change_password():
     # Check if the session has the required data (email and OTP code)
@@ -437,7 +437,7 @@ def change_password():
 
     if not forgot_password_data:
         flash("Session expired. Please start the process again.", "danger")
-        return redirect(url_for('main.forgot_password_identify_email'))  # Redirect to email identification page
+        return redirect(url_for('account_routes.forgot_password_identify_email'))  # Redirect to email identification page
 
     if request.method == 'POST':
         password = request.form.get('password')  # Get the new password
@@ -466,6 +466,6 @@ def change_password():
         # Redirect to the login page after successful password reset
         flash("Your password has been successfully reset. You can now log in.", "success")
         session.pop('forgot_password_data', None)  # ✅ Clear session after reset
-        return redirect(url_for('main.login'))  # Redirect to login page
+        return redirect(url_for('account_routes.login'))  # Redirect to login page
 
     return render_template('forgot3.html')

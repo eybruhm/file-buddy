@@ -31,11 +31,11 @@ def create_app():
     mongo.init_app(app)
     mail.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'main.login'
+    login_manager.login_view = 'account_routes.login'
 
     # Import and register Blueprints
-    from .routes import main
-    app.register_blueprint(main)
+    from .account_routes import account_routes
+    app.register_blueprint(account_routes)
 
     from .file_routes import file_routes
     app.register_blueprint(file_routes)
