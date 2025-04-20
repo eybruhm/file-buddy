@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #333;
+        }
+        .verification-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .verification-container:hover {
+            transform: translateY(-10px);
+        }
+        .verification-container h2 {
+            color: #42a5f5;
+            margin-bottom: 20px;
+        }
+        .verification-container input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+        .verification-container input:focus {
+            border-color: #64b5f6;
+            box-shadow: 0 0 8px rgba(100, 181, 246, 0.5);
+            outline: none;
+        }
+        .verification-container button {
+            background-color: #90caf9;
+            color: #333;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin: 10px 3px 0px 3px;
+        }
+        .verification-container button:hover {
+            background-color: #64b5f6;
+            color: white;
+            transform: scale(1.1);
+        }
+        .back-arrow {
+            color: #2d82c2;
+            text-decoration: none;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .back-arrow:hover {
+            color: #11093d;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- 🔹 Flash Messages (Now at the Very Top) -->
+    <div class="container mt-3 position-absolute top-0 start-50 translate-middle-x" style="z-index: 1055; width: 100%; max-width: 500px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    
+
+    <a href="/signup" class="back-arrow">&#8592; Back</a> <!-- Points to Signup Page -->
+    <div class="verification-container">
+        <h2>Email Verification</h2>
+
+        <!-- ✅ ADDED FORM TAG -->
+        <form action="{{ url_for('main.email_verification') }}" method="POST">
+            <input type="text" name="verification_code" placeholder="Enter 6-digit Code" required>
+            <br>
+            <button type="submit">Confirm</button>
+        </form>
+
+        <!-- ✅ RESEND CODE BUTTON -->
+        <form action="{{ url_for('main.resend_verification') }}" method="POST">
+            <button type="submit">Resend Code</button>
+        </form>
+    </div>
+
+    <!-- ✅ Bootstrap Bundle with Popper (required for alerts to dismiss) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+</body>
+</html>

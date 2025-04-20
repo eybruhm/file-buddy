@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Sharing System</title>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('https://via.placeholder.com/1920x1080') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .hero {
+            background: linear-gradient(135deg, #83a4d4, #b6fbff);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+        }
+        .hero button {
+            margin: 10px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: 40px auto;
+            flex-grow: 1;
+        }
+        footer {
+            background: linear-gradient(135deg, #83a4d4, #b6fbff);
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: auto;
+        }
+        button:hover {
+            transform: scale(1.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease-in-out;
+        }
+        .browse-container, .results-container {
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 15px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: auto;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 20px; /* Add spacing between sections */
+        }
+        .browse-container h2, .results-container h2 {
+            color: #42a5f5;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .browse-container label, .results-container label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .browse-container select, 
+        .browse-container input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .browse-container select:hover, 
+        .browse-container input[type="text"]:hover {
+            border-color: #42a5f5;
+            transition: border 0.3s ease;
+        }
+        .browse-btn {
+            background: #5a75a3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+        .browse-btn:hover {
+            background: #3f5b88;
+        }
+        .results-container ul {
+            list-style: none;
+            padding: 0;
+        }
+        .results-container li {
+            background: rgba(255, 255, 255, 0.8); 
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .results-container li strong {
+            color: #42a5f5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+     <!-- Navbar -->
+     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold">File Buddy</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- <li class="nav-item">
+                        <input type="search" class="form-control me-2" placeholder="Search files">
+                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/dashboard">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/upload">Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold"  href="/browse">Browse Files</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold">Contact Us</a>
+                    </li> -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-primary fw-semibold" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Profile
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item">Settings</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Browse Container -->
+    <div class="browse-container">
+        <h2>Browse Files</h2>
+        <label for="categorySelect">Category</label>
+        <select id="categorySelect">
+            <option value="">All</option>
+            <option value="document">Document</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="audio">Audio</option>
+        </select>
+        <label for="searchInput">Keyword</label>
+        <input type="text" id="searchInput" placeholder="Search by title or name" />
+        <label for="uploaderInput">Uploader</label>
+        <input type="text" id="uploaderInput" placeholder="Enter uploader name" />
+        <label for="sortSelect">Sort By</label>
+        <select id="sortSelect" class="bottom-dropdown">
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+            <option value="name">Name A-Z</option>
+        </select>
+        <button class="browse-btn" onclick="showResults()">Search</button>
+    </div>
+
+    <!-- Results Container -->
+    <div class="results-container" id="resultsContainer" style="display: none;">
+        <h2>Search Results</h2>
+        <ul id="resultsList">
+            <!-- Results will dynamically display here -->
+        </ul>
+    </div>
+
+    <script>
+        function showResults() {
+            const resultsContainer = document.getElementById("resultsContainer");
+            const resultsList = document.getElementById("resultsList");
+            
+            // Clear previous results
+            resultsList.innerHTML = "";
+
+            // Simulate no results case
+            const results = [];
+
+            if (results.length === 0) {
+                resultsList.innerHTML = "<li>No results found. Please try again later.</li>";
+            } else {
+                results.forEach((result) => {
+                    const listItem = document.createElement("li");
+                    listItem.innerHTML = `<strong>${result.fileName}</strong><br>Category: ${result.category}<br>Uploader: ${result.uploader}`;
+                    resultsList.appendChild(listItem);
+                });
+            }
+
+            // Show the results container
+            resultsContainer.style.display = "block";
+        }
+    </script>
+    
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 File Sharing System. All rights reserved.
+    </footer>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

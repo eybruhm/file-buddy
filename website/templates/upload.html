@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Sharing System</title>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('https://via.placeholder.com/1920x1080') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .hero {
+            background: linear-gradient(135deg, #83a4d4, #b6fbff);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+        }
+        .hero button {
+            margin: 10px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: 40px auto;
+            flex-grow: 1;
+        }
+        footer {
+            background: linear-gradient(135deg, #83a4d4, #b6fbff);
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: auto;
+        }
+        button:hover {
+            transform: scale(1.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease-in-out;
+          }
+        .upload-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .upload-container h2 {
+            color: #42a5f5;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .upload-container label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        .upload-container select, 
+        .upload-container input[type="text"], 
+        .upload-container input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .upload-container .file-upload, 
+        .upload-container .upload-btn {
+            background-color: #42a5f5;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s ease;
+        }
+        .upload-container .file-upload:hover, 
+        .upload-container .upload-btn:hover {
+            background-color: #64b5f6;
+        }
+        .upload-container .specific-users-list {
+            margin-top: 10px;
+        }
+        .upload-container .user-pill {
+            display: inline-block;
+            background: #42a5f5;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin-right: 5px;
+        }
+        p {
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="#">File Buddy</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/dashboard">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/upload">Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/browse">Browse Files</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="#">Contact Us</a>
+                    </li> -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-primary fw-semibold" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Profile
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <!-- <li><a class="dropdown-item" href="#">Login</a></li> -->
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container upload-container mt-5">
+      <h2>Upload Your File, Buddy!</h2>
+      <div class="input-container">
+        <label for="category">Category:</label>
+        <select id="category">
+          <option value="">Select a category</option>
+          <option value="document">Document</option>
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+          <option value="audio">Audio</option>
+          <option value="others">Others</option>
+        </select>
+      </div>
+      <div class="input-container">
+        <label for="privacy">Privacy:</label>
+        <select id="privacy">
+          <option value="">Choose privacy level</option>
+          <option value="only-me">Only Me</option>
+          <option value="specific-users">Specific Users</option>
+          <option value="anyone-link">Anyone with the Link</option>
+        </select>
+      </div>
+      <div class="input-container" id="users-container" style="display: none;">
+        <label for="userInput">Add Users (email or name):</label>
+        <input type="text" id="userInput" placeholder="Enter name or email" />
+        <div class="specific-users-list">
+          <span class="user-pill">user1@example.com</span>
+          <span class="user-pill">Jane Doe</span>
+        </div>
+      </div>
+      <button class="file-upload" onclick="document.getElementById('fileInput').click();">
+        Select File
+      </button>
+      <input type="file" id="fileInput" style="display: none;" />
+      <p id="fileName"></p>
+      <p id="errorMessage"></p>
+      <button class="upload-btn" onclick="validateFile()">Upload</button>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const privacySelect = document.getElementById('privacy');
+        const usersContainer = document.getElementById('users-container');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const categorySelect = document.getElementById('category');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Show/hide specific users input
+        privacySelect.addEventListener('change', function () {
+          usersContainer.style.display = (privacySelect.value === 'specific-users') ? 'block' : 'none';
+        });
+
+        // Display selected file name
+        fileInput.addEventListener('change', function () {
+          const file = fileInput.files[0];
+          if (file) {
+            fileNameDisplay.textContent = "Selected file: " + file.name;
+          } else {
+            fileNameDisplay.textContent = "";
+          }
+        });
+
+        // Dynamically change file input accept attribute based on category
+        categorySelect.addEventListener('change', function () {
+          const category = categorySelect.value;
+
+          if (category === 'document') {
+            fileInput.accept = '.pdf, .doc, .docx';
+          } else if (category === 'image') {
+            fileInput.accept = '.jpg, .jpeg, .png, .gif';
+          } else if (category === 'video') {
+            fileInput.accept = '.mp4, .avi, .mov, .mkv';
+          } else if (category === 'audio') {
+            fileInput.accept = '.mp3, .wav, .aac';
+          } else {
+            fileInput.accept = '';
+          }
+        });
+      });
+
+      function validateFile() {
+        const file = document.getElementById('fileInput').files[0];
+        const category = document.getElementById('category').value;
+        const errorMessage = document.getElementById('errorMessage');
+
+        if (file) {
+          const fileType = file.type;
+          let valid = false;
+
+          if (category === 'document' && (fileType === 'application/pdf' || fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+            valid = true;
+          } else if (category === 'image' && (fileType === 'image/jpeg' || fileType === 'image/png' || fileType === 'image/gif')) {
+            valid = true;
+          } else if (category === 'video' && (fileType === 'video/mp4' || fileType === 'video/avi' || fileType === 'video/mkv' || fileType === 'video/quicktime')) {
+            valid = true;
+          } else if (category === 'audio' && (fileType === 'audio/mpeg' || fileType === 'audio/wav' || fileType === 'audio/aac')) {
+            valid = true;
+          }
+
+          if (!valid) {
+            errorMessage.textContent = 'Error: The selected file does not match the chosen category!';
+          } else {
+            errorMessage.textContent = '';
+            console.log('File is valid for upload!');
+          }
+        }
+      }
+    </script>
+
+    <!-- Footer -->
+    <footer>
+      &copy; 2025 File Sharing System. All rights reserved.
+  </footer>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+  </html>
+
+
+

@@ -1,0 +1,86 @@
+
+
+
+
+
+
+
+
+
+# ----------------------- Explanation -----------------------
+# Blueprint: 
+# - A Blueprint in Flask is like a "mini-app" inside your main app.
+# - It allows you to organize routes separately and then register them in the main app.
+#
+# render_template:
+# - This function loads and renders an HTML template from the "templates" folder.
+#
+# flash:
+# - This function allows you to display temporary messages (like alerts).
+# - Requires a secret key to be set in Flask (not used yet in this file).
+# ----------------------------------------------------------
+
+# Create a Blueprint named "main"
+# - "main" is the name of the Blueprint (used for identification).
+# - __name__ represents the name of the current Python module (routes.py).
+main = Blueprint("main", __name__)
+
+# ----------------------- ROUTES -----------------------
+
+ok so these are the steps i need for now:
+Recommended Order for You
+✅ (Step 1) Connect MongoDB to Flask
+✅ (Step 2) Set up user data storage (models.py)
+✅ (Step 3) Implement and test Signup
+✅ (Step 4) Implement and test Login
+✅ (Step 5) Implement current_user session tracking
+
+
+
+APP PASSWORD: Flask-Mail, naiegqcffeghuhim
+set MAIL_PASSWORD=naiegqcffeghuhim
+
+
+🔹 What We'll Do in Step 4 (Login)
+1️⃣ Modify routes.py to implement user login
+2️⃣ Modify login.html to handle login form submission
+3️⃣ Store user session after successful login (current_user)
+4️⃣ Redirect users after logging in
+5️⃣ Test and fix issues
+
+4️⃣ Testing & Fixing Issues
+✅ Test Cases
+1️⃣ Try accessing /dashboard without logging in → Should redirect to login page.
+2️⃣ Log in with correct credentials → Should redirect to dashboard and show username.
+3️⃣ Log in with wrong credentials → Should show Invalid email or password.
+4️⃣ Refresh dashboard → Should still show username (session persists).
+5️⃣ Open a new tab → Should still recognize logged-in user.
+6️⃣ Click Log Out → Should redirect to login page.
+7️⃣ After logging out, try accessing /dashboard again → Should redirect to login page.
+
+
+
+
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # 🔹 Find user by email
+        user = mongo.db.users.find_one({"email": email})
+
+        # 🔹 Check if user exists & verify password
+        if user and check_password_hash(user["password_hashed"], password):
+            # ✅ Create a User instance
+            user_obj = User(user_id=str(user["_id"]), username=user["username"], email=user["email"])
+
+            # ✅ Log in the user (Flask-Login handles session)
+            login_user(user_obj)
+
+            flash(f"Welcome, {user['username']}!", "success")
+            return redirect(url_for('main.dashboard'))  # 🚀 Redirect after login
+        else:
+            flash("Invalid email or password.", "error")
+
+    return render_template('login.html')

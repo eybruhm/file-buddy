@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .signup-container { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); text-align: center; width: 90%; max-width: 400px; }
+        .signup-container h2 { color: #42a5f5; margin-bottom: 20px; }
+        .signup-container input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        .signup-container input:focus { border-color: #64b5f6; box-shadow: 0 0 8px rgba(100, 181, 246, 0.5); outline: none; }
+        .signup-container button { background-color: #90caf9; color: #333; padding: 12px 20px; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: background-color 0.3s ease, transform 0.3s ease; }
+        .signup-container button:disabled { background-color: #ccc; cursor: not-allowed; } /* Disabled button */
+        .signup-container button:hover { background-color: #64b5f6; color: white; transform: scale(1.1); }
+        .error-message { color: red; font-size: 14px; display: none; } /* Error messages */
+        .back-arrow {
+            color: #2d82c2;
+            text-decoration: none;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .back-arrow:hover {
+            color: #11093d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-3 position-absolute top-0 start-50 translate-middle-x" style="z-index: 1055; width: 100%; max-width: 500px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+   
+    <a href="/" class="back-arrow">&#8592; Back</a> <!-- Points to Landing Page -->
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <form id="signupForm" action="/signup" method="POST">
+            <input type="text" id="username" name="username" placeholder="Username" required>
+            <p class="error-message" id="usernameError">Username must be 2-15 characters long.</p>
+
+            <input type="email" id="email" name="email" placeholder="Email" required>
+
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <p class="error-message" id="passwordError">Password must be at least 8 characters.</p>
+
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+            <p class="error-message" id="confirmPasswordError">Passwords do not match.</p>
+
+            <button type="submit" id="submitBtn" disabled>Sign Up</button>
+        </form>
+    </div>
+
+    <script>
+        // Get elements
+        const username = document.getElementById("username");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirm_password");
+        const submitBtn = document.getElementById("submitBtn");
+
+        // Error messages
+        const usernameError = document.getElementById("usernameError");
+        const passwordError = document.getElementById("passwordError");
+        const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+        // Function to validate form
+        function validateForm() {
+            let isValid = true;
+
+            // Check username length (2-15 characters)
+            if (username.value.length < 2 || username.value.length > 15) {
+                usernameError.style.display = "block";
+                isValid = false;
+            } else {
+                usernameError.style.display = "none";
+            }
+
+            // Check password length (at least 8 characters)
+            if (password.value.length < 7) {
+                passwordError.style.display = "block";
+                isValid = false;
+            } else {
+                passwordError.style.display = "none";
+            }
+
+            // Check if passwords match
+            if (password.value !== confirmPassword.value) {
+                confirmPasswordError.style.display = "block";
+                isValid = false;
+            } else {
+                confirmPasswordError.style.display = "none";
+            }
+
+            // Enable or disable submit button
+            submitBtn.disabled = !isValid;
+        }
+
+        // Add event listeners
+        username.addEventListener("input", validateForm);
+        password.addEventListener("input", validateForm);
+        confirmPassword.addEventListener("input", validateForm);
+    </script>
+
+    <!-- ✅ Bootstrap Bundle with Popper (required for alerts to dismiss) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
