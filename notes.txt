@@ -9,7 +9,6 @@ skyz vhxw xobz lcib
 
 
 TASKS:
-- if possible, new routes.py file for main features of website (user logged in)
 - base.html = navigation bar, content section
 - upload page = form fill out? tag/element for file holder?
 

@@ -5,7 +5,6 @@
 # - generate_password_hash: Hashes passwords for security.
 # - datetime: Stores user signup time.
 # ----------------------------------------------------------
-
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 from flask_login import UserMixin

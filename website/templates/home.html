@@ -1,175 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Sharing System</title>
-    <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: url('https://via.placeholder.com/1920x1080') no-repeat center center fixed;
-            background-size: cover;
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.5s ease, color 0.5s ease; /* Smooth transition for dark mode */
-        }
-        .hero {
-            background: linear-gradient(135deg, #83a4d4, #b6fbff);
-            color: white;
-            padding: 60px 20px;
-            text-align: center;
-        }
-        .hero h1 {
-            font-size: 3rem;
-        }
-        .hero p {
-            font-size: 1.2rem;
-        }
-        .hero button {
-            margin: 10px;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: 40px auto;
-            flex-grow: 1;
-        }
-        footer {
-            background: linear-gradient(135deg, #83a4d4, #b6fbff);
-            color: white;
-            text-align: center;
-            padding: 15px 0;
-            margin-top: auto;
-        }
-        button:hover {
-            transform: scale(1.1);
-            transition: all 0.3s ease-in-out;
-        }
-        .card:hover {
-            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease-in-out;
-        }
-    </style>
-</head>
-<body>
-    
+{% extends "base.html" %}
 
-    <!-- Dark Mode Toggle -->
-    <button class="btn btn-dark btn-sm position-fixed top-0 end-0 m-3" id="toggleDarkMode">Dark Mode</button>
-    <script>
-        const toggleButton = document.getElementById('toggleDarkMode');
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+{% block content %}
+<!-- Hero Section -->
+<div class="hero text-center text-white p-5 rounded" style="background: linear-gradient(135deg, #83a4d4, #b6fbff);">
+    <h1>Hello, <b>{{ username }}</b>! Welcome to File Buddy</h1>
+    <p>Good to see you again! Your file sharing space is ready to help you manage and share with ease.</p>
+</div>
 
-        // Apply saved preference
-        if (isDarkMode) {
-            document.body.classList.add('bg-dark');
-            document.body.classList.add('text-light');
-        }
-
-        toggleButton.addEventListener('click', () => {
-            document.body.classList.toggle('bg-dark');
-            document.body.classList.toggle('text-light');
-            localStorage.setItem('darkMode', document.body.classList.contains('bg-dark'));
-        });
-    </script>
-
-    <!-- <div class="container mt-3 position-absolute top-0 start-50 translate-middle-x" style="z-index: 1055; width: 100%; max-width: 500px;"> -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    <!-- </div> -->
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand text-primary fw-bold">File Buddy</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- <li class="nav-item">
-                        <input type="search" class="form-control me-2" placeholder="Search files">
-                    </li> -->
-                    <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold" href="/dashboard">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold" href="/upload">Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold"  href="/browse">Browse Files</a>
-                    </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold">Contact Us</a>
-                    </li> -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-primary fw-semibold" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Profile
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item">Settings</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('account_routes.logout') }}">Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <div class="hero">
-        <h1>Hello, <b>{{ username }}</b>! Welcome to File Buddy</h1>
-        <p>Good to see you again! Your file sharing space is ready to help you manage and share with ease.</p>
-        <!-- <button class="btn btn-light btn-lg shadow-sm mt-4">Learn More</button> -->
-        <!-- <button class="btn btn-outline-light btn-lg shadow-sm mt-4">Sign Up</button> -->
-    </div>
-
-    <!-- Main Content -->
-    <div class="container">
-        <h2 class="text-center mb-4">Your Files</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">example.txt</h5>
-                        <p class="card-text">File size: 1 KB</p>
-                        <button class="btn btn-primary btn-sm">Download</button>
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </div>
+<!-- Files Section -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Your Files</h2>
+    <div class="row">
+        <!-- Example File Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">example.txt</h5>
+                    <p class="card-text">File size: 1 KB</p>
+                    <button class="btn btn-primary btn-sm">Download</button>
+                    <button class="btn btn-danger btn-sm">Delete</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer>
-        &copy; 2025 File Buddy. All rights reserved.
-    </footer>
-
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
-
-
-
-
-
-
-
+</div>
+{% endblock %}

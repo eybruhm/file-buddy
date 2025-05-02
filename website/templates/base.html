@@ -3,59 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        /* Flash Messages Styling */
-        #flash-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            text-align: center;
-        }
-    
-        .flash-message {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 15px;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-        }
-    
-        .flash-message.success { background: #28a745; }  /* Green for success */
-        .flash-message.error { background: #dc3545; }    /* Red for errors */
-        .flash-message.info { background: #17a2b8; }     /* Blue for info */
-        .flash-message.warning { background: #ffc107; }  /* Yellow for warnings */
-    
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: white;
-            cursor: pointer;
-            padding: 0 10px;
-        }
-    </style>
+    <title>{% block title %}File Buddy{% endblock %}</title>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
 <body>
 
+    <!-- Dark Mode Toggle -->
+    <button class="btn btn-dark btn-sm position-fixed top-0 end-0 m-3" id="toggleDarkMode">Dark Mode</button>
+    <script>
+        const toggleButton = document.getElementById('toggleDarkMode');
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        if (isDarkMode) {
+            document.body.classList.add('bg-dark');
+            document.body.classList.add('text-light');
+        }
+
+        toggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('bg-dark');
+            document.body.classList.toggle('text-light');
+            localStorage.setItem('darkMode', document.body.classList.contains('bg-dark'));
+        });
+    </script>
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div id="flash-container">
-            {% for category, message in messages %}
-                <div class="flash-message {{ category }}">
-                    <span>{{ message }}</span>
-                    <button class="close-btn" onclick="this.parentElement.remove();">&times;</button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
-        
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm custom-navbar">
+        <div class="container">
+            <a class="navbar-brand text-primary fw-bold" href="/">File Buddy</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/dashboard">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/upload">Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-semibold" href="/browse">Browse Files</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-primary fw-semibold" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+                            Profile
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('account_routes.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content will go here -->
+    <div class="container my-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-auto py-3 bg-primary text-white">
+        &copy; 2025 File Buddy. All rights reserved.
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
