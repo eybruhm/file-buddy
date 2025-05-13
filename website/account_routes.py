@@ -7,6 +7,9 @@ import os
 from . import mongo, mail
 from .models import User
 from functools import wraps
+from bson.objectid import ObjectId
+from pymongo.errors import DuplicateKeyError
+from datetime import datetime
 
 
 # Define the Blueprint
@@ -16,13 +19,13 @@ account_routes = Blueprint('account_routes', __name__)
 login_manager = LoginManager()
 login_manager.login_view = "account_routes.login"  # Redirect unauthorized users to login page
 
-# ✅ Load User Function (Needed for Flask-Login)
-@login_manager.user_loader
-def load_user(user_id):
-    user = mongo.db.users.find_one({"_id": user_id})  # Find user in database
-    if user:
-        return User(user_id=str(user["_id"]), username=user["username"], email=user["email"])
-    return None
+# # ✅ Load User Function (Needed for Flask-Login)
+# @login_manager.user_loader
+# def load_user(user_id):
+#     user = mongo.db.users.find_one({"_id": user_id})  # Find user in database
+#     if user:
+#         return User(user_id=str(user["_id"]), username=user["username"], email=user["email"])
+#     return None
 
 # 🔐 DECORATOR 1: BLOCK ACCESS IF USER IS LOGGED IN
 def block_logged_in_users(f):
@@ -146,13 +149,126 @@ def dashboard():
 def upload():
     return render_template('upload.html', username=current_user.username)
 
-@account_routes.route('/browse')
-@login_required  # ✅ Restrict access to logged-in users
+@account_routes.route("/browse", methods=["GET", "POST"])
+@login_required
 def browse():
-    return render_template('browse.html', username=current_user.username)
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+    search_query = request.args.get("search", "").strip().lower()
+    selected_type = request.args.get("type", "all").lower()  # all, files, users
+    selected_file_type = request.args.get("file_type", "all").lower()  # image, docs, video, etc.
+
+    # Initialize containers
+    user_cards = []
+    file_cards = []
+
+    users_col = mongo.db.users
+    files_col = mongo.db.files
+
+    # 🔹 Search for matching users if allowed
+    if selected_type in ["all", "users"]:
+        if search_query:
+            matching_users = list(users_col.find({
+                "username": {"$regex": f"^{search_query}", "$options": "i"}
+            }))
+        else:
+            matching_users = list(users_col.find())
+
+        for user in matching_users:
+            user_cards.append({
+                "username": user["username"],
+                "created_at": user.get("created_at"),
+                "uploads_count": sum(user.get("uploads_count", {}).values())
+            })
+
+    # 🔹 Search for matching files if allowed
+    if selected_type in ["all", "files"]:
+        file_query = {}
+
+        if search_query:
+            # Match by filename or owner's username
+            matched_users = users_col.find({
+                "username": {"$regex": f"^{search_query}", "$options": "i"}
+            })
+            matched_user_ids = [str(u["_id"]) for u in matched_users]
+
+            file_query["$or"] = [
+                {"filename": {"$regex": f"^{search_query}", "$options": "i"}},
+                {"owner_id": {"$in": matched_user_ids}}
+            ]
+
+        if selected_file_type != "all":
+            file_query["file_type"] = selected_file_type
+
+        files = list(files_col.find(file_query).sort("upload_date", -1))
+
+        for file in files:
+            owner = users_col.find_one({"_id": ObjectId(file["owner_id"])})
+            owner_username = owner["username"] if owner else "Unknown"
+
+            file_cards.append({
+                "file_id": str(file["_id"]),
+                "filename": file["filename"],
+                "file_type": file["file_type"],
+                "file_size_mb": round(file["file_size"] / (1024 * 1024), 2),
+                "owner_username": owner_username,
+                "is_protected": bool(file.get("password")),
+                "is_owner": (file["owner_id"] == current_user.get_id())
+            })
+
+    return render_template("browse.html", files=file_cards, users=user_cards, current_user_id=current_user.get_id()) 
+
+
+@account_routes.route("/developers")
+@login_required
+def developers():
+    return render_template('developers.html')
+
+@account_routes.route("/profile")
+@login_required
+def profile():
+    user_id = current_user.id
+    user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+
+    files = list(mongo.db.files.find({'owner_id': user_id}))
+
+    total_files = len(files)
+    total_size_mb = 0
+    count_docs = count_images = count_videos = count_audio = count_others = 0
+
+    for f in files:
+        category = f.get('file_type', 'other').lower()
+        size = f.get('file_size', 0)
+        total_size_mb += size / (1024 * 1024)
+
+        if category == 'document':
+            count_docs += 1
+        elif category == 'image':
+            count_images += 1
+        elif category == 'video':
+            count_videos += 1
+        elif category == 'audio':
+            count_audio += 1
+        else:
+            count_others += 1
+
+    stats = {
+        'total': total_files,
+        'docs': count_docs,
+        'image': count_images,
+        'video': count_videos,
+        'audio': count_audio,
+        'others': count_others,
+        'size': round(total_size_mb, 2)
+    }
+
+    return render_template('profile.html',
+        user=user,
+        stats=stats,
+        files=files
+    )
+
+
+
+
 
 # ===========================
 # 🚀 LOGOUT ROUTE
@@ -252,12 +368,15 @@ def email_verification():
                 "email": signup_data['email'],
                 "password_hashed": signup_data['password'],  # Already hashed password
                 "created_at": mongo.db.command("serverStatus")["localTime"],
-                "profile_picture": "",
                 "storage_used": 0,
                 "max_storage": 5000000000,  # 5GB limit
                 "total_uploads": 0,
                 "uploads_count": {
-                    "image": 0, "video": 0, "docs": 0, "compressed": 0, "code": 0
+                    "image": 0,
+                    "video": 0,
+                    "docs": 0,
+                    "audio": 0,
+                    "others": 0
                 }
             })
 
@@ -469,3 +588,41 @@ def change_password():
         return redirect(url_for('account_routes.login'))  # Redirect to login page
 
     return render_template('forgot3.html')
+
+
+@account_routes.route('/update-password', methods=['POST'])
+def update_password():
+    if 'user_id' not in session:
+        return redirect(url_for('account_routes.login'))
+
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    if new_password != confirm_password:
+        flash('Passwords do not match.', 'danger')
+        return redirect(url_for('profile'))
+
+    hashed_pw = generate_password_hash(new_password)
+    user_id = session['user_id']
+
+    mongo.db.users.update_one({'_id': ObjectId(user_id)}, {'$set': {'password': hashed_pw}})
+    flash('Password updated successfully.', 'success')
+    return redirect(url_for('profile'))
+
+@account_routes.route('/update-username', methods=['POST'])
+def update_username():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    new_username = request.form.get('new_username').strip().lower()
+    user_id = session['user_id']
+
+    # Check if username is already taken
+    if mongo.db.users.find_one({'username': new_username}):
+        flash('Username already taken.', 'danger')
+        return redirect(url_for('profile'))
+
+    mongo.db.users.update_one({'_id': ObjectId(user_id)}, {'$set': {'username': new_username}})
+    session['username'] = new_username  # Optional: update session
+    flash('Username updated successfully.', 'success')
+    return redirect(url_for('profile'))

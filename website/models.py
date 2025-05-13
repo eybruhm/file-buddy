@@ -46,7 +46,37 @@ def create_user(username, email, password):
         "username": username,
         "email": email,
         "password_hashed": hashed_password,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow(),
+        "storage_used": 0,
+        "max_storage": 0,
+        "total_uploads": 0,
+        "uploads_count": {
+            "image": 0,
+            "video": 0,
+            "docs": 0,
+            "audio": 0,
+            "others": 0
+        }
     }
 
     return users_collection.insert_one(user_data).inserted_id
+
+# ✅ Function to store file metadata in MongoDB
+def save_file_metadata(file_id, filename, file_type, file_extension, file_size, owner_id, privacy, password=None):
+    """Saves metadata of uploaded files to MongoDB."""
+    files_collection = mongo.db.files
+
+    metadata = {
+        "_id": file_id,  # This will match the GridFS file ID
+        "filename": filename, # e.g. project.docs
+        "file_type": file_type,  # e.g., image, video, docs, audio, others
+        "file_extension": file_extension,  # e.g., .jpg, .mp4
+        "file_size": file_size, # in byte e.g 2322 bytes
+        "owner_id": owner_id, 
+        "upload_date": datetime.utcnow(), 
+        "password": password,  # Optional: Only for 'Restricted'
+        "file_url": ""  # Optional: Can be filled later if serving via static route
+    }
+
+    # ✅ Insert into the "files" collection
+    files_collection.insert_one(metadata)

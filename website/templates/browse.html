@@ -1,234 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Sharing System</title>
-    <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: url('https://via.placeholder.com/1920x1080') no-repeat center center fixed;
-            background-size: cover;
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .hero {
-            background: linear-gradient(135deg, #83a4d4, #b6fbff);
-            color: white;
-            padding: 60px 20px;
-            text-align: center;
-        }
-        .hero h1 {
-            font-size: 3rem;
-        }
-        .hero p {
-            font-size: 1.2rem;
-        }
-        .hero button {
-            margin: 10px;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: 40px auto;
-            flex-grow: 1;
-        }
-        footer {
-            background: linear-gradient(135deg, #83a4d4, #b6fbff);
-            color: white;
-            text-align: center;
-            padding: 15px 0;
-            margin-top: auto;
-        }
-        button:hover {
-            transform: scale(1.1);
-            transition: all 0.3s ease-in-out;
-        }
-        .card:hover {
-            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease-in-out;
-        }
-        .browse-container, .results-container {
-            background: rgba(255, 255, 255, 0.9); 
-            border-radius: 15px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: auto;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            margin-bottom: 20px; /* Add spacing between sections */
-        }
-        .browse-container h2, .results-container h2 {
-            color: #42a5f5;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .browse-container label, .results-container label {
-            font-weight: bold;
-            color: #333;
-            display: block;
-            margin-bottom: 10px;
-            text-align: left;
-        }
-        .browse-container select, 
-        .browse-container input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        .browse-container select:hover, 
-        .browse-container input[type="text"]:hover {
-            border-color: #42a5f5;
-            transition: border 0.3s ease;
-        }
-        .browse-btn {
-            background: #5a75a3;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s ease;
-        }
-        .browse-btn:hover {
-            background: #3f5b88;
-        }
-        .results-container ul {
-            list-style: none;
-            padding: 0;
-        }
-        .results-container li {
-            background: rgba(255, 255, 255, 0.8); 
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: left;
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .results-container li strong {
-            color: #42a5f5;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation Bar -->
-     <!-- Navbar -->
-     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand text-primary fw-bold">File Buddy</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- <li class="nav-item">
-                        <input type="search" class="form-control me-2" placeholder="Search files">
-                    </li> -->
-                    <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold" href="/dashboard">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold" href="/upload">Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold"  href="/browse">Browse Files</a>
-                    </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link text-primary fw-semibold">Contact Us</a>
-                    </li> -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-primary fw-semibold" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Profile
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item">Settings</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('account_routes.logout') }}">Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
+{% extends "base.html" %}
+{% block title %}Browse Files{% endblock %}
+{% block content %}
+
+<style>
+    .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    }
+
+    .card-body {
+        flex-grow: 1;
+    }
+
+</style>
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Browse Files</h2>
+
+    <!-- Filter Form -->
+    <form class="row mb-4" id="searchForm" method="get" action="{{ url_for('account_routes.browse') }}">
+        <div class="col-md-4 mb-2">
+            <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ request.args.get('search', '') }}">
+        </div>
+        <div class="col-md-3 mb-2">
+            <select class="form-select" name="type">
+                <option value="all" {% if request.args.get('type') == 'all' %}selected{% endif %}>All</option>
+                <option value="files" {% if request.args.get('type') == 'files' %}selected{% endif %}>Files</option>
+                <option value="users" {% if request.args.get('type') == 'users' %}selected{% endif %}>Users</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-2">
+            <select class="form-select" name="file_type">
+                <option value="all" {% if request.args.get('file_type') == 'all' %}selected{% endif %}>All</option>
+                <option value="docs" {% if request.args.get('file_type') == 'docs' %}selected{% endif %}>Documents</option>
+                <option value="image" {% if request.args.get('file_type') == 'image' %}selected{% endif %}>Images</option>
+                <option value="video" {% if request.args.get('file_type') == 'video' %}selected{% endif %}>Videos</option>
+                <option value="audio" {% if request.args.get('file_type') == 'audio' %}selected{% endif %}>Audios</option>
+                <option value="others" {% if request.args.get('file_type') == 'others' %}selected{% endif %}>Others</option>
+            </select>
+        </div>
+        <div class="col-md-2 mb-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+
+    <!-- Dynamic Results -->
+    <div class="row" id="results">
+        <!-- 🔹 User Cards -->
+        {% for user in users %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">👤 {{ user.username }}</h5>
+                    <p>Uploads: {{ user.uploads_count }}</p>
+                    <p>Joined: {{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</p>
+                </div>
             </div>
         </div>
-    </nav>
+        {% endfor %}
 
-    <!-- Browse Container -->
-    <div class="browse-container">
-        <h2>Browse Files</h2>
-        <label for="categorySelect">Category</label>
-        <select id="categorySelect">
-            <option value="">All</option>
-            <option value="document">Document</option>
-            <option value="image">Image</option>
-            <option value="video">Video</option>
-            <option value="audio">Audio</option>
-        </select>
-        <label for="searchInput">Keyword</label>
-        <input type="text" id="searchInput" placeholder="Search by title or name" />
-        <label for="uploaderInput">Uploader</label>
-        <input type="text" id="uploaderInput" placeholder="Enter uploader name" />
-        <label for="sortSelect">Sort By</label>
-        <select id="sortSelect" class="bottom-dropdown">
-            <option value="latest">Latest</option>
-            <option value="oldest">Oldest</option>
-            <option value="name">Name A-Z</option>
-        </select>
-        <button class="browse-btn" onclick="showResults()">Search</button>
+        <!-- 🔹 File Cards -->
+        {% for file in files %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ file.filename }}</h5>
+                    <p>Type: {{ file.file_type|capitalize }}</p>
+                    <p>Size: {{ file.file_size_mb }} MB</p>
+                    <p>Owner: {{ file.owner_username }}</p>
+                    <p>
+                        {% if file.is_protected %}
+                            <span class="badge bg-warning">With Password</span>
+                        {% else %}
+                            <span class="badge bg-success">No Password</span>
+                        {% endif %}
+                    </p>
+                    {% if file.is_owner %}
+                        <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">Download</a>
+                        <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>                        
+                    {% else %}
+                        {% if file.is_protected %}
+                            <button class="btn btn-primary btn-sm" onclick="askPassword('{{ file.file_id }}')">Download</button>
+                        {% else %}
+                            <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">Download</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
+</div>
 
-    <!-- Results Container -->
-    <div class="results-container" id="resultsContainer" style="display: none;">
-        <h2>Search Results</h2>
-        <ul id="resultsList">
-            <!-- Results will dynamically display here -->
-        </ul>
-    </div>
+<!-- Password Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="passwordForm" method="POST" action="/verify-password">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Enter Password to Download</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="password" id="downloadPassword" name="password" class="form-control" placeholder="Enter password" required>
+          <input type="hidden" id="fileIdToDownload" name="file_id">
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Download</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
-    <script>
-        function showResults() {
-            const resultsContainer = document.getElementById("resultsContainer");
-            const resultsList = document.getElementById("resultsList");
-            
-            // Clear previous results
-            resultsList.innerHTML = "";
+<script>
+    function askPassword(fileId) {
+        document.getElementById("fileIdToDownload").value = fileId;
+        new bootstrap.Modal(document.getElementById('passwordModal')).show();
+    }
 
-            // Simulate no results case
-            const results = [];
 
-            if (results.length === 0) {
-                resultsList.innerHTML = "<li>No results found. Please try again later.</li>";
+     // Close the password modal after successful verification
+     document.getElementById("passwordForm").addEventListener("submit", function(event) {
+        event.preventDefault();  // Prevent the form from submitting
+
+        var password = document.getElementById("downloadPassword").value;
+        var fileId = document.getElementById("fileIdToDownload").value;
+
+        // Make the POST request to verify the password
+        fetch("/verify-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                file_id: fileId,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hide the modal if the password is correct
+                var modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                modal.hide();
+
+                // Trigger the file download after closing the modal
+                window.location.href = data.download_url;
             } else {
-                results.forEach((result) => {
-                    const listItem = document.createElement("li");
-                    listItem.innerHTML = `<strong>${result.fileName}</strong><br>Category: ${result.category}<br>Uploader: ${result.uploader}`;
-                    resultsList.appendChild(listItem);
-                });
+                // Show an error message if the password is wrong
+                alert("Incorrect password");
             }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    });
 
-            // Show the results container
-            resultsContainer.style.display = "block";
-        }
-    </script>
-    
-    <!-- Footer -->
-    <footer>
-        &copy; 2025 File Sharing System. All rights reserved.
-    </footer>
+</script>
 
-    <!-- Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
+{% endblock %}

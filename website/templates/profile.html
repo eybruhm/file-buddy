@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .card-body {
+        flex-grow: 1;
+    }
+
+    .filter-btn.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">{{ user.username }}'s Profile</h2>
+
+    <!-- 🔹 User Info -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title">👤 Username: {{ user.username }}</h4>
+            <p>Email: {{ user.email }}</p>
+            <p>Joined: {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+        </div>
+    </div>
+
+    <!-- 🔹 File Statistics -->
+    <div class="row text-center mb-4">
+        <div class="col-md-2 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Total Files</h6>
+                    <p>{{ stats.total }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Documents</h6>
+                    <p>{{ stats.docs }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Images</h6>
+                    <p>{{ stats.image }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Videos</h6>
+                    <p>{{ stats.video }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Audios</h6>
+                    <p>{{ stats.audio }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Others</h6>
+                    <p>{{ stats.others }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 Filter Buttons -->
+    <div class="mb-3 text-center">
+        <button class="btn btn-outline-primary filter-btn active" data-category="all">All</button>
+        <button class="btn btn-outline-primary filter-btn" data-category="docs">Documents</button>
+        <button class="btn btn-outline-primary filter-btn" data-category="image">Images</button>
+        <button class="btn btn-outline-primary filter-btn" data-category="video">Videos</button>
+        <button class="btn btn-outline-primary filter-btn" data-category="audio">Audios</button>
+        <button class="btn btn-outline-primary filter-btn" data-category="others">Others</button>
+    </div>
+
+    <!-- 🔹 File Cards -->
+    <div class="row" id="fileContainer">
+        {% for file in files %}
+        <div class="col-md-4 mb-4 file-card category-{{ file.file_type }}">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ file.filename }}</h5>
+                    <p>Type: {{ file.file_type|capitalize }}</p>
+                    <p>Size: {{ file.file_size_mb }} MB</p>
+                    {% if file.is_protected %}
+                        <span class="badge bg-warning">With Password</span>
+                    {% else %}
+                        <span class="badge bg-success">No Password</span>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <!-- For download link -->
+                    <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">Download</a>
+                    <!-- For delete button -->
+                    <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const fileCards = document.querySelectorAll('.file-card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const category = button.dataset.category;
+
+            // Highlight active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Show/hide cards
+            fileCards.forEach(card => {
+                if (category === 'all' || card.classList.contains(`category-${category}`)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+
+{% endblock %}

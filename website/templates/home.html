@@ -1,27 +1,147 @@
 {% extends "base.html" %}
 
+{% block title %}Home - File Buddy{% endblock %}
+
 {% block content %}
+<style>
+  /* Copy the styles you want to keep from the original new home.html */
+  .hero {
+    background: linear-gradient(-45deg, #83a4d4, #61adb1, #c2e9fb, #a1c4fd);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    color: white;
+    padding: 120px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom-left-radius: 100px;
+    border-bottom-right-radius: 100px;
+    position: relative;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .hero h1 {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero p {
+    font-size: 1.4rem;
+    max-width: 750px;
+    margin: 0 auto;
+  }
+
+  .hero .btn-light {
+    font-weight: 600;
+    margin-top: 30px;
+    background: #ffffffdd;
+    color: #333;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+  }
+
+  .hero .btn-light:hover {
+    transform: translateY(-3px);
+    background-color: #fff;
+  }
+
+  .welcome-section,
+  .feature-card {
+    background: linear-gradient(145deg, #f0f8ff, #e0f7fa);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    color: #333;
+    text-align: center;
+  }
+
+  .feature-card {
+    border-left: 6px solid #4facfe;
+    text-align: left;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 45px rgba(0, 0, 0, 0.2);
+  }
+
+  .feature-card h3 i {
+    color: #0d6efd;
+    margin-right: 10px;
+  }
+
+  .feature-card li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .feature-card li i {
+    color: #4facfe;
+    margin-right: 10px;
+  }
+
+  .contact-section {
+    text-align: center;
+    margin-top: 50px;
+  }
+
+  .contact-section h3 i {
+    color: #0d6efd;
+    margin-right: 8px;
+  }
+</style>
+
 <!-- Hero Section -->
-<div class="hero text-center text-white p-5 rounded" style="background: linear-gradient(135deg, #83a4d4, #b6fbff);">
-    <h1>Hello, <b>{{ username }}</b>! Welcome to File Buddy</h1>
-    <p>Good to see you again! Your file sharing space is ready to help you manage and share with ease.</p>
+<div class="hero">
+  <h1>Welcome to File Buddy</h1>
+  <p>Where secure file sharing meets simplicity.</p>
+  <a href="#features" class="btn btn-light btn-lg">Get Started</a>
 </div>
 
-<!-- Files Section -->
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Your Files</h2>
-    <div class="row">
-        <!-- Example File Card -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">example.txt</h5>
-                    <p class="card-text">File size: 1 KB</p>
-                    <button class="btn btn-primary btn-sm">Download</button>
-                    <button class="btn btn-danger btn-sm">Delete</button>
-                </div>
-            </div>
-        </div>
+<!-- Main Content -->
+<div class="container" id="features">
+  <div class="welcome-section">
+    <h2>Welcome, <b>{{ username }}</b>!</h2>
+    <p class="lead">Your personal file space is ready to explore.</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="feature-card">
+        <h3><i class="bi bi-cloud-arrow-up"></i> About File Buddy</h3>
+        <p>File Buddy is a simple and secure platform for uploading and sharing files. Designed for convenience, it lets you manage your files, share them with others, and protect sensitive uploads with passwords — all in one clean, user-friendly interface.</p>
+      </div>
     </div>
+    <div class="col-md-6">
+      <div class="feature-card">
+        <h3><i class="bi bi-stars"></i> Key Features</h3>
+        <ul class="mb-0">
+          <li><i class="bi bi-check-circle"></i> Simple and fast file uploads</li>
+          <li><i class="bi bi-check-circle"></i> Password-protected file sharing</li>
+          <li><i class="bi bi-check-circle"></i> Browse and search uploaded files</li>
+          <li><i class="bi bi-check-circle"></i> Real-time collaboration</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-section">
+    <h3><i class="bi bi-envelope"></i> Contact Us</h3>
+    <p>Have questions or need help? Reach out to us at:</p>
+    <a href="mailto:filebuddy.6@gmail.com" class="btn btn-primary mt-2">filebuddy.6@gmail.com</a>
+  </div>
 </div>
 {% endblock %}

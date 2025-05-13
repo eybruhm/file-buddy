@@ -1,14 +1,74 @@
+CUT:
+format database
+
+
+
 ACCOUNTS: 
 akadabra632@gmail.com 
 awee1234
+
+jcarescompany@gmail.com
+jcarescompany
+
 
 filebuddy.6@gmail.com
 im101pl101
 App: Project
 skyz vhxw xobz lcib
 
+🔁 Step-by-Step Git Push:
+# 1. Track all changes (added/modified files)
+git add .
+
+# 2. Commit with a message describing your progress
+git commit -m "Describe what you changed here"
+
+# 3. Push your changes to GitHub
+git push
+
+
 
 TASKS:
+- cursor ai setup
+- developers page, design is affected
+- profile: filter not working
+- profile: change pass, validate
+- profile: change username, validate
 - base.html = navigation bar, content section
-- upload page = form fill out? tag/element for file holder?
+- upload page - models/database. routes/backend.
+- browse - show all files (users, files, pass MIXED). search a text. enable: users only, files only, with password or not.
+- update the users collection in how many files uploaded in logged in.
+
+account:
+{
+  "_id": ObjectId(),
+  "username": "",
+  "email": "",
+  "password_hashed": "",
+  "created_at": ISODate(),
+  "storage_used": 0,
+  "max_storage": 0,
+  "total_uploads": 0,
+  "uploads_count": {
+	"image": 0,
+	"video": 0,
+	"docs": 0,
+	"audio": 0,
+	"others": 0
+  }
+}
+
+files:
+{
+  "_id": ObjectId(),
+  "filename": "",
+  "file_type": "",
+  "file_extension": "",
+  "file_size": 0,
+  "owner_id": "",
+  "upload_date": ISODate(),
+  "privacy": "", // or "With Password", "No Password"
+  "password": "",
+  "file_url": ""
+}
 

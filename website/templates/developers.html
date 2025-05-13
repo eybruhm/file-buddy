@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+{% block title %}Developers{% endblock %}
+{% block content %}
+
+
+
+<style>
+  :root {
+    --primary-color: #4facfe;
+    --secondary-color: #00f2fe;
+    --accent-color: #ff6b6b;
+  }
+
+  .main-body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #d7e1ec, #f4f9ff);
+    color: #333;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* overflow-x: hidden; */
+    scroll-behavior: smooth;
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    /* overflow: hidden;     hides bubbles outside its bounds */
+  }
+  
+  .dev-footer {
+    background: linear-gradient(-45deg, #83a4d4, #b6fbff, #c2e9fb, #a1c4fd);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    text-align: center;
+    padding: 60px 0 30px;
+    border-top-left-radius: 100px;
+    border-top-right-radius: 100px;
+    margin-top: 80px;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+  }
+      @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+      }
+
+  /* Floating bubbles background */
+  .bubbles {
+    /* background: rgba(0, 210, 252, 0.1); */
+    background: rgba(16, 16, 16, 0.1); 
+    position: fixed;
+    pointer-events: none;
+    width: 100%;
+    height: 100vh; 
+    z-index: 0;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
+
+  .bubble {
+    position: absolute;
+    bottom: -100px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: rise 15s infinite ease-in;
+    border: 1px solid red;
+  }
+
+  .bubble:nth-child(1) {
+    width: 40px;
+    height: 40px;
+    left: 10%;
+    animation-duration: 8s;
+  }
+
+  .bubble:nth-child(2) {
+    width: 20px;
+    height: 20px;
+    left: 20%;
+    animation-duration: 5s;
+    animation-delay: 1s;
+  }
+
+  .bubble:nth-child(3) {
+    width: 50px;
+    height: 50px;
+    left: 35%;
+    animation-duration: 7s;
+    animation-delay: 2s;
+  }
+
+  .bubble:nth-child(4) {
+    width: 80px;
+    height: 80px;
+    left: 50%;
+    animation-duration: 11s;
+    animation-delay: 0s;
+  }
+
+  .bubble:nth-child(5) {
+    width: 35px;
+    height: 35px;
+    left: 55%;
+    animation-duration: 6s;
+    animation-delay: 1s;
+  }
+
+  .bubble:nth-child(6) {
+    width: 45px;
+    height: 45px;
+    left: 65%;
+    animation-duration: 8s;
+    animation-delay: 3s;
+  }
+
+  .bubble:nth-child(7) {
+    width: 25px;
+    height: 25px;
+    left: 75%;
+    animation-duration: 7s;
+    animation-delay: 2s;
+  }
+
+  .bubble:nth-child(8) {
+    width: 80px;
+    height: 80px;
+    left: 80%;
+    animation-duration: 6s;
+    animation-delay: 1s;
+  }
+
+  @keyframes rise {
+    0% {
+      bottom: -100px;
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(100px);
+    }
+    100% {
+      bottom: 100vh;
+      transform: translateX(-200px);
+    }
+  }
+
+  .hero {
+    background: linear-gradient(-45deg, #83a4d4, #b6fbff, #c2e9fb, #a1c4fd);
+    color: rgb(0, 0, 0);
+    padding: 120px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom-left-radius: 100px;
+    border-bottom-right-radius: 100px;
+    position: relative;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.05)" d="M0,0 L100,0 L100,100 L0,100 Z" /></svg>');
+    background-size: cover;
+    opacity: 0.3;
+  }
+
+  .hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero h1::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: white;
+    border-radius: 2px;
+  }
+
+  .hero p {
+    font-size: 1.3rem;
+    max-width: 750px;
+    margin: 0 auto 30px;
+    opacity: 0.9;
+  }
+
+  .hero .btn-light {
+    font-weight: 600;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero .btn-light:hover {
+    transform: translateY(-3px);
+    background-color: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .hero .btn-light::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: 0.5s;
+  }
+
+  .hero .btn-light:hover::before {
+    left: 100%;
+  }
+
+  .dev-container {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 50px 20px 30px 20px;
+    margin: 30px 70px;
+    flex-grow: 1;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .dev-container::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    z-index: -1;
+    border-radius: 27px;
+    opacity: 0.1;
+  }
+
+
+  .developer-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: none;
+  }
+
+  .developer-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    z-index: -1;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .developer-card:hover::after {
+    opacity: 0.1;
+  }
+
+  .developer-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .developer-card img {
+    border-radius: 50%;
+    margin: 25px auto 15px;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 5px solid white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .developer-card:hover img {
+    transform: scale(1.1);
+    border-color: var(--accent-color);
+  }
+
+  .developer-card h5 {
+    color: #333;
+    font-weight: 600;
+    margin-top: 15px;
+    transition: color 0.3s ease;
+  }
+
+  .developer-card:hover h5 {
+    color: var(--primary-color);
+  }
+
+  .developer-card .role {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+  }
+
+  .developer-card:hover .role {
+    color: var(--accent-color);
+  }
+
+  .developer-card p {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+  }
+
+  .developer-card:hover p {
+    color: #444;
+  }
+
+  .developer-card i {
+    margin-right: 6px;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+  }
+
+  .developer-card:hover i {
+    color: var(--accent-color);
+  }
+</style>
+
+
+<div class="main-body">
+
+  <!-- Floating bubbles background -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <!-- Developer Section -->
+  <!-- <div class="dev-footer"> -->
+    <div class="dev-container">
+      <h4 class="mb-5 text-center">Meet the Developers</h4>
+      <div class="row justify-content-center">
+
+        <!-- Developer Card 1 -->
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+          <div class="card developer-card text-center">
+            <img src="c:\Users\Julius\OneDrive\Pictures\Camera Roll\WIN_20250313_16_10_28_Pro.jpg" class="mx-auto d-block" alt="Dev 1">
+            <div class="card-body">
+              <h5>Mendoza, Julius Ceasar V.</h5>
+              <div class="role">Frontend Developer</div>
+              <p><i class="bi bi-mortarboard-fill"></i>SBCS-2A</p>
+              <p><i class="bi bi-geo-alt-fill"></i>Main Campus - San Bartolome</p>
+              <p><i class="bi bi-envelope-fill"></i>juliusmendoza809@gmail.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developer Card 2 -->
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+          <div class="card developer-card text-center">
+            <img src="https://via.placeholder.com/100" class="mx-auto d-block" alt="Dev 2">
+            <div class="card-body">
+              <h5>Jane Smith</h5>
+              <div class="role">Backend Developer</div>
+              <p><i class="bi bi-mortarboard-fill"></i>BSIT - 3A</p>
+              <p><i class="bi bi-geo-alt-fill"></i>Main Campus</p>
+              <p><i class="bi bi-envelope-fill"></i>jane.smith@email.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developer Card 3 -->
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+          <div class="card developer-card text-center">
+            <img src="https://via.placeholder.com/100" class="mx-auto d-block" alt="Dev 3">
+            <div class="card-body">
+              <h5>Mike Johnson</h5>
+              <div class="role">Database Manager</div>
+              <p><i class="bi bi-mortarboard-fill"></i>BSIT - 3A</p>
+              <p><i class="bi bi-geo-alt-fill"></i>Main Campus</p>
+              <p><i class="bi bi-envelope-fill"></i>mike.johnson@email.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developer Card 4 -->
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+          <div class="card developer-card text-center">
+            <img src="https://via.placeholder.com/100" class="mx-auto d-block" alt="Dev 4">
+            <div class="card-body">
+              <h5>Sarah Wilson</h5>
+              <div class="role">UI/UX Designer</div>
+              <p><i class="bi bi-mortarboard-fill"></i>BSIT - 3A</p>
+              <p><i class="bi bi-geo-alt-fill"></i>Main Campus</p>
+              <p><i class="bi bi-envelope-fill"></i>sarah.wilson@email.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developer Card 4 -->
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+          <div class="card developer-card text-center">
+            <img src="https://via.placeholder.com/100" class="mx-auto d-block" alt="Dev 5">
+            <div class="card-body">
+              <h5>Sarah Wilson</h5>
+              <div class="role">UI/UX Designer</div>
+              <p><i class="bi bi-mortarboard-fill"></i>BSIT - 3A</p>
+              <p><i class="bi bi-geo-alt-fill"></i>Main Campus</p>
+              <p><i class="bi bi-envelope-fill"></i>sarah.wilson@email.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- You can add more developer cards here -->
+
+      </div> <!-- End .row -->
+      <div class="mt-5 text-center">
+        <p class="mb-1">In Partial Fulfillment of the Requirements in IM101 and PL101</p>
+        <p class="mb-1">(Advanced Database Design and Programming Languages)</p>
+        <p>Submitted to: Dr. Luis C. Delos Santos</p>
+      </div>
+    </div> <!-- End .dev-container -->
+  <!-- </div> End .dev-footer -->
+
+</div> <!-- End .main-body -->
+
+
+ 
+{% endblock %}
