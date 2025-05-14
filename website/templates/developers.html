@@ -64,9 +64,8 @@
     bottom: -100px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border-radius: 50%;
-    opacity: 0.5;
+    opacity: 1;
     animation: rise 15s infinite ease-in;
-    border: 1px solid red;
   }
 
   .bubble:nth-child(1) {
@@ -239,13 +238,16 @@
     border-radius: 25px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     padding: 50px 20px 30px 20px;
-    margin: 30px 70px;
+    margin: 30px 20px;
     flex-grow: 1;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     position: relative;
     font-family: 'Poppins', sans-serif;
+    position: relative;
+    max-width: 100%;
   }
+  
 
   .dev-container::before {
     content: "";
@@ -274,11 +276,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border: none;
-    width: 110%;
-    height: 110%;
     margin: auto 10px;
-  }
+}
 
   .developer-card::after {
     content: '';
@@ -305,7 +304,7 @@
 
   .developer-card img {
     border-radius: 50%;
-    margin: 25px auto 15px;
+    margin: 25px 25px 25px 25px;
     width: 120px;
     height: 120px;
     object-fit: fill;
@@ -371,7 +370,6 @@
     border: none;
     backdrop-filter: blur(3px);
     transition: all 0.3s ease;
-    width: 120%;
   }
 
   .prof-dedication-card:hover {
@@ -379,7 +377,38 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
   }
 
+  .prof-dedication-card .img-thumbnail {
+    width: 120px;
+    height: 120px;
+    object-fit: fill; /* Ensures the image doesn't stretch */
+  }
 
+  /* Mobile Styles */
+  @media (max-width: 767px) {
+      /* Stack developer cards vertically on small screens */
+      .col-6 {
+          width: 100% !important;
+          margin-bottom: 20px;  /* Adds space between cards */
+      }
+      
+      /* Ensure container doesn't touch the edge */
+      .dev-container {
+          margin: 30px;  /* Add space on mobile */
+          padding: 40px 20px; /* Adjust padding to prevent overcrowding */
+      }
+
+      /* Developer card images should be responsive */
+      .developer-card img {
+          width: 100px; /* Make images smaller on mobile */
+          height: 100px;
+          margin: 20px auto;
+      }
+
+      /* Adjust card body for mobile */
+      .developer-card .card-body {
+          padding: 15px;
+      }
+  }
 </style>
 
 
@@ -440,7 +469,7 @@
               <div class="role">Project Manager</div>
               <p><i class="bi bi-mortarboard-fill"></i>SBCS-2A</p>
               <p><i class="bi bi-geo-alt-fill"></i>QCU - San Bartolome</p>
-              <p><i class="bi bi-envelope-fill"></i>#@gmail.com</p>
+              <p><i class="bi bi-envelope-fill"></i>juliusmendoza809@gmail.com</p>
             </div>
           </div>
         </div>
@@ -477,14 +506,24 @@
       </div> <!-- End .row -->
 
       <!-- Professor Dedication Rectangle -->
-      <div class="card prof-dedication-card mt-5 mx-auto p-4 d-flex flex-row align-items-center" style="max-width: 900px;">
-        <img src="{{ url_for('static', filename='pfp-awee.jpg') }}" alt="Prof. Photo" class="img-thumbnail me-4" style="width: 120px; height: 190px; object-fit: fill; border-radius: 10px;">
-        <div>
-          <p class="mb-1 fw-semibold">In Partial Fulfillment of the Requirements in IM101 and PL101</p>
-          <p class="mb-1 fst-italic text-muted">(Advanced Database and Programming Languages)</p>
-          <p class="mb-1">Submitted to:</p>
-          <h5 class="fw-bold text-primary mb-1"><i class="bi bi-person-fill me-1"></i>Dr. Luis C. Delos Santos</h5>
-          <p class="mb-0"><i class="bi bi-envelope-fill me-1"></i>manuel.luis.delos-santos@qcu.edu.ph</p>
+      <div class="card prof-dedication-card mt-5 mx-auto p-4" style="max-width: 900px;">
+        <div class="row g-3 flex-column flex-md-row align-items-center">
+          <!-- Image Column -->
+          <div class="col-auto text-center text-md-start">
+            <img src="{{ url_for('static', filename='pfp-awee.jpg') }}"
+                alt="Prof. Photo"
+                class="img-thumbnail"
+                style="width: 120px; height: 190px; object-fit: fill; border-radius: 10px;">
+          </div>
+
+          <!-- Text Column -->
+          <div class="col">
+            <p class="mb-1 fw-semibold">In Partial Fulfillment of the Requirements in IM101 and PL101</p>
+            <p class="mb-1 fst-italic text-muted">(Advanced Database and Programming Languages)</p>
+            <p class="mb-1">Submitted to:</p>
+            <h5 class="fw-bold text-primary mb-1"><i class="bi bi-person-fill me-1"></i>Dr. Luis C. Delos Santos</h5>
+            <p class="mb-0"><i class="bi bi-envelope-fill me-1"></i>manuel.luis.delos-santos@qcu.edu.ph</p>
+          </div>
         </div>
       </div>
 
