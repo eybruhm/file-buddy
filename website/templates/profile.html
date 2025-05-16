@@ -3,122 +3,441 @@
 {% block content %}
 
 <style>
+    :root {
+        --primary-color: #4facfe;
+        --secondary-color: #00f2fe;
+    }
+
+    .main-body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(to right, #d7e1ec, #f4f9ff);
+        color: #333;
+        min-height: calc(100vh - 56px - 52px);
+        display: flex;
+        flex-direction: column;
+        scroll-behavior: smooth;
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* Floating bubbles background */
+    .bubbles {
+        background: rgba(16, 16, 16, 0.1);
+        position: fixed;
+        pointer-events: none;
+        width: 100%;
+        height: 100vh;
+        z-index: 0;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+
+    .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        opacity: 1;
+        animation: rise 15s infinite ease-in;
+    }
+
+    .bubble:nth-child(1) {
+        width: 40px;
+        height: 40px;
+        left: 10%;
+        animation-duration: 8s;
+    }
+
+    .bubble:nth-child(2) {
+        width: 20px;
+        height: 20px;
+        left: 20%;
+        animation-duration: 5s;
+        animation-delay: 1s;
+    }
+
+    .bubble:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        left: 35%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(4) {
+        width: 80px;
+        height: 80px;
+        left: 50%;
+        animation-duration: 11s;
+        animation-delay: 0s;
+    }
+
+    .bubble:nth-child(5) {
+        width: 35px;
+        height: 35px;
+        left: 55%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+    }
+
+    .bubble:nth-child(6) {
+        width: 45px;
+        height: 45px;
+        left: 65%;
+        animation-duration: 8s;
+        animation-delay: 3s;
+    }
+
+    .bubble:nth-child(7) {
+        width: 25px;
+        height: 25px;
+        left: 75%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(8) {
+        width: 80px;
+        height: 80px;
+        left: 80%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+    }
+
+    @keyframes rise {
+        0% {
+            bottom: -100px;
+            transform: translateX(0);
+        }
+        50% {
+            transform: translateX(100px);
+        }
+        100% {
+            bottom: 100vh;
+            transform: translateX(-200px);
+        }
+    }
+
+    .profile-container {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+
+    .profile-container::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        z-index: -1;
+        border-radius: 27px;
+        opacity: 0.1;
+    }
+
     .card {
         display: flex;
         flex-direction: column;
         height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
 
     .card-body {
         flex-grow: 1;
     }
 
+    .filter-btn {
+        margin: 0 5px;
+        transition: all 0.3s ease;
+    }
+
     .filter-btn.active {
-        background-color: #0d6efd;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
         color: white;
+    }
+
+    .filter-btn:hover:not(.active) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-document .card {
+        background: rgba(233, 237, 201, 0.9) !important; /* #e9edc9 */
+    }
+
+    .category-image .card {
+        background: rgba(254, 250, 224, 0.9) !important; /* #fefae0 */
+    }
+
+    .category-video .card {
+        background: rgba(231, 219, 187, 0.9) !important; /* #faedcd */
+    }
+
+    .category-audio .card {
+        background: rgba(204, 213, 174, 0.9) !important; /* #ccd5ae */
+    }
+
+    .category-others .card {
+        background: rgba(212, 163, 115, 0.9) !important; /* #d4a373 */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-body {
+            padding: 15px;
+        }
+        
+        .profile-container {
+            padding: 20px;
+        }
+
+        .filter-btn {
+            margin: 5px;
+        }
     }
 </style>
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">{{ user.username }}'s Profile</h2>
-
-    <!-- 🔹 User Info -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <h4 class="card-title">👤 Username: {{ user.username }}</h4>
-            <p>Email: {{ user.email }}</p>
-            <p>Joined: {{ user.created_at.strftime('%Y-%m-%d') }}</p>
-        </div>
+<div class="main-body">
+    <!-- Floating bubbles background -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
     </div>
 
-    <!-- 🔹 File Statistics -->
-    <div class="row text-center mb-4">
-        <div class="col-md-2 col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h6>Total Files</h6>
-                    <p>{{ stats.total }}</p>
+    <div class="profile-container">
+        <h2 class="text-center mb-4">{{ user.username }}'s Profile</h2>
+
+        <!-- User Info -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title"><i class="bi bi-person-circle me-2"></i>{{ user.username }}</h4>
+                <p class="mb-2"><i class="bi bi-envelope-fill me-2"></i>{{ user.email }}</p>
+                <p class="mb-3"><i class="bi bi-calendar-event me-2"></i>Joined: {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#changeUsernameModal">
+                        <i class="bi bi-pencil-square me-1"></i>Change Username
+                    </button>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="bi bi-key-fill me-1"></i>Change Password
+                    </button>
+                    <a href="{{ url_for('account_routes.logout') }}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>Logout
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h6>Documents</h6>
-                    <p>{{ stats.docs }}</p>
+
+        <!-- File Statistics -->
+        <div class="row text-center mb-4">
+            <div class="col-md-2 col-6 mb-3">
+                <div class="stats-card card">
+                    <div class="card-body">
+                        <i class="bi bi-files h3 mb-2 text-primary"></i>
+                        <h6>Total Files</h6>
+                        <p class="mb-0">{{ stats.total }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="stats-card card">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-text h3 mb-2 text-primary"></i>
+                        <h6>Documents</h6>
+                        <p class="mb-0">{{ stats.docs }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="stats-card card">
+                    <div class="card-body">
+                        <i class="bi bi-image h3 mb-2 text-primary"></i>
+                        <h6>Images</h6>
+                        <p class="mb-0">{{ stats.image }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="stats-card card">
+                    <div class="card-body">
+                        <i class="bi bi-camera-video h3 mb-2 text-primary"></i>
+                        <h6>Videos</h6>
+                        <p class="mb-0">{{ stats.video }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="stats-card card">
+                    <div class="card-body">
+                        <i class="bi bi-music-note-beamed h3 mb-2 text-primary"></i>
+                        <h6>Audios</h6>
+                        <p class="mb-0">{{ stats.audio }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="stats-card card">
+                    <div class="card-body">
+                        <i class="bi bi-folder h3 mb-2 text-primary"></i>
+                        <h6>Others</h6>
+                        <p class="mb-0">{{ stats.others }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h6>Images</h6>
-                    <p>{{ stats.image }}</p>
-                </div>
-            </div>
+
+        <!-- Filter Buttons -->
+        <div class="mb-4 text-center">
+            <button class="btn btn-outline-primary filter-btn active" data-category="all">
+                <i class="bi bi-grid-3x3-gap me-1"></i>All
+            </button>
+            <button class="btn btn-outline-primary filter-btn" data-category="document">
+                <i class="bi bi-file-earmark-text me-1"></i>Documents
+            </button>
+            <button class="btn btn-outline-primary filter-btn" data-category="image">
+                <i class="bi bi-image me-1"></i>Images
+            </button>
+            <button class="btn btn-outline-primary filter-btn" data-category="video">
+                <i class="bi bi-camera-video me-1"></i>Videos
+            </button>
+            <button class="btn btn-outline-primary filter-btn" data-category="audio">
+                <i class="bi bi-music-note-beamed me-1"></i>Audios
+            </button>
+            <button class="btn btn-outline-primary filter-btn" data-category="others">
+                <i class="bi bi-folder me-1"></i>Others
+            </button>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h6>Videos</h6>
-                    <p>{{ stats.video }}</p>
+
+        <!-- File Cards -->
+        <div class="row" id="fileContainer">
+            {% for file in files %}
+            <div class="col-md-4 mb-4 file-card category-{{ file.file_type }}">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-file-earmark me-2"></i>{{ file.filename }}
+                        </h5>
+                        <p class="mb-2">
+                            <i class="bi bi-tag me-2"></i>Type: {{ file.file_type|capitalize }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="bi bi-hdd me-2"></i>Size: {{ file.file_size_mb }} MB
+                        </p>
+                        <p class="mb-3">
+                            {% if file.is_protected %}
+                                <i class="bi bi-lock-fill text-warning me-2"></i>
+                                <span class="badge bg-warning">With Password</span>
+                            {% else %}
+                                <i class="bi bi-unlock text-success me-2"></i>
+                                <span class="badge bg-success">No Password</span>
+                            {% endif %}
+                        </p>
+                        <div class="mt-auto">
+                            <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-download me-1"></i>Download
+                            </a>
+                            <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h6>Audios</h6>
-                    <p>{{ stats.audio }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h6>Others</h6>
-                    <p>{{ stats.others }}</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
+</div>
 
-    <!-- 🔹 Filter Buttons -->
-    <div class="mb-3 text-center">
-        <button class="btn btn-outline-primary filter-btn active" data-category="all">All</button>
-        <button class="btn btn-outline-primary filter-btn" data-category="docs">Documents</button>
-        <button class="btn btn-outline-primary filter-btn" data-category="image">Images</button>
-        <button class="btn btn-outline-primary filter-btn" data-category="video">Videos</button>
-        <button class="btn btn-outline-primary filter-btn" data-category="audio">Audios</button>
-        <button class="btn btn-outline-primary filter-btn" data-category="others">Others</button>
-    </div>
-
-    <!-- 🔹 File Cards -->
-    <div class="row" id="fileContainer">
-        {% for file in files %}
-        <div class="col-md-4 mb-4 file-card category-{{ file.file_type }}">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ file.filename }}</h5>
-                    <p>Type: {{ file.file_type|capitalize }}</p>
-                    <p>Size: {{ file.file_size_mb }} MB</p>
-                    {% if file.is_protected %}
-                        <span class="badge bg-warning">With Password</span>
-                    {% else %}
-                        <span class="badge bg-success">No Password</span>
-                    {% endif %}
-                </div>
-                <div class="card-footer bg-transparent border-0">
-                    <!-- For download link -->
-                    <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">Download</a>
-                    <!-- For delete button -->
-                    <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </div>
+<!-- Change Username Modal -->
+<div class="modal fade" id="changeUsernameModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Username</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form id="changeUsernameForm" method="POST" action="{{ url_for('account_routes.update_username') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newUsername" class="form-label">New Username</label>
+                        <input type="text" class="form-control" id="newUsername" name="new_username" required>
+                        <div id="usernameMessage" class="form-text text-danger" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="changeUsernameBtn">Change Username</button>
+                </div>
+            </form>
         </div>
-        {% endfor %}
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="changePasswordForm" method="POST" action="{{ url_for('account_routes.update_password') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                    </div>
+                    <div id="passwordValidation" class="form-text" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn" disabled>Change Password</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -145,6 +464,89 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     });
+
+    // Username validation
+    const newUsernameInput = document.getElementById('newUsername');
+    const usernameMessage = document.getElementById('usernameMessage');
+    const changeUsernameBtn = document.getElementById('changeUsernameBtn');
+
+    newUsernameInput.addEventListener('input', async () => {
+        const username = newUsernameInput.value.trim();
+        
+        if (username.length < 2 || username.length > 15) {
+            usernameMessage.textContent = 'Username must be between 2 and 15 characters';
+            usernameMessage.style.display = 'block';
+            changeUsernameBtn.disabled = true;
+            return;
+        }
+
+        // Check if username is unique
+        try {
+            const response = await fetch(`/check-username?username=${encodeURIComponent(username)}`);
+            const data = await response.json();
+            
+            if (!data.available) {
+                usernameMessage.textContent = 'Username is already taken';
+                usernameMessage.style.display = 'block';
+                changeUsernameBtn.disabled = true;
+            } else {
+                usernameMessage.style.display = 'none';
+                changeUsernameBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error checking username:', error);
+        }
+    });
+
+    // Password validation
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordValidation = document.getElementById('passwordValidation');
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+
+    function validatePassword() {
+        const password = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        let isValid = true;
+        let message = '';
+
+        // Check minimum length
+        if (password.length < 8) {
+            message += '• Password must be at least 8 characters long<br>';
+            isValid = false;
+        }
+
+        // Check for spaces
+        if (password.includes(' ')) {
+            message += '• Password cannot contain spaces<br>';
+            isValid = false;
+        }
+
+        // Check if passwords match
+        if (password !== confirmPassword && confirmPassword !== '') {
+            message += '• Passwords do not match<br>';
+            isValid = false;
+        }
+
+        // Update validation message
+        if (!isValid) {
+            passwordValidation.innerHTML = message;
+            passwordValidation.style.display = 'block';
+            passwordValidation.className = 'form-text text-danger';
+        } else if (password && confirmPassword) {
+            passwordValidation.innerHTML = '✓ Password is valid';
+            passwordValidation.style.display = 'block';
+            passwordValidation.className = 'form-text text-success';
+        } else {
+            passwordValidation.style.display = 'none';
+        }
+
+        // Enable/disable submit button
+        changePasswordBtn.disabled = !isValid || !password || !confirmPassword;
+    }
+
+    newPasswordInput.addEventListener('input', validatePassword);
+    confirmPasswordInput.addEventListener('input', validatePassword);
 });
 </script>
 

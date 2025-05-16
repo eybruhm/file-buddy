@@ -5,7 +5,7 @@ format database
 
 ACCOUNTS: 
 akadabra632@gmail.com 
-awee1234
+abra1234
 
 jcarescompany@gmail.com
 jcarescompany
@@ -30,7 +30,6 @@ git push
 
 TASKS:
 - cursor ai setup
-- developers page, design is affected
 - profile: filter not working
 - profile: change pass, validate
 - profile: change username, validate

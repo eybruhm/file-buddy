@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -228,7 +228,12 @@ def profile():
     user_id = current_user.id
     user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
 
-    files = list(mongo.db.files.find({'owner_id': user_id}))
+    # Get files and convert sizes to MB
+    raw_files = list(mongo.db.files.find({'owner_id': user_id}))
+    files = []
+    for f in raw_files:
+        f['file_size_mb'] = round(f.get('file_size', 0) / (1024 * 1024), 2)  # Convert bytes to MB
+        files.append(f)
 
     total_files = len(files)
     total_size_mb = 0
@@ -590,39 +595,65 @@ def change_password():
     return render_template('forgot3.html')
 
 
-@account_routes.route('/update-password', methods=['POST'])
-def update_password():
-    if 'user_id' not in session:
-        return redirect(url_for('account_routes.login'))
+@account_routes.route('/check-username')
+@login_required
+def check_username():
+    username = request.args.get('username', '').strip().lower()
+    existing_user = mongo.db.users.find_one({'username': username})
+    # Username is available if no user found or if it's the current user's username
+    is_available = not existing_user or str(existing_user['_id']) == current_user.id
+    return jsonify({'available': is_available})
 
+@account_routes.route('/update-username', methods=['POST'])
+@login_required
+def update_username():
+    new_username = request.form.get('new_username', '').strip()
+
+    # Validate username length
+    if len(new_username) < 2 or len(new_username) > 15:
+        flash('Username must be between 2 and 15 characters.', 'danger')
+        return redirect(url_for('account_routes.profile'))
+
+    # Check if username is already taken
+    existing_user = mongo.db.users.find_one({'username': new_username})
+    if existing_user and str(existing_user['_id']) != current_user.id:
+        flash('Username is already taken.', 'danger')
+        return redirect(url_for('account_routes.profile'))
+
+    # Update username in database
+    mongo.db.users.update_one(
+        {'_id': ObjectId(current_user.id)},
+        {'$set': {'username': new_username}}
+    )
+
+    flash('Username updated successfully!', 'success')
+    return redirect(url_for('account_routes.profile'))
+
+@account_routes.route('/update-password', methods=['POST'])
+@login_required
+def update_password():
     new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
 
+    # Validate password
+    if len(new_password) < 8:
+        flash('Password must be at least 8 characters long.', 'danger')
+        return redirect(url_for('account_routes.profile'))
+
+    if ' ' in new_password:
+        flash('Password cannot contain spaces.', 'danger')
+        return redirect(url_for('account_routes.profile'))
+
     if new_password != confirm_password:
         flash('Passwords do not match.', 'danger')
-        return redirect(url_for('profile'))
+        return redirect(url_for('account_routes.profile'))
 
-    hashed_pw = generate_password_hash(new_password)
-    user_id = session['user_id']
+    # Update password in database
+    hashed_password = generate_password_hash(new_password)
+    mongo.db.users.update_one(
+        {'_id': ObjectId(current_user.id)},
+        {'$set': {'password_hashed': hashed_password}}
+    )
 
-    mongo.db.users.update_one({'_id': ObjectId(user_id)}, {'$set': {'password': hashed_pw}})
-    flash('Password updated successfully.', 'success')
-    return redirect(url_for('profile'))
-
-@account_routes.route('/update-username', methods=['POST'])
-def update_username():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    new_username = request.form.get('new_username').strip().lower()
-    user_id = session['user_id']
-
-    # Check if username is already taken
-    if mongo.db.users.find_one({'username': new_username}):
-        flash('Username already taken.', 'danger')
-        return redirect(url_for('profile'))
-
-    mongo.db.users.update_one({'_id': ObjectId(user_id)}, {'$set': {'username': new_username}})
-    session['username'] = new_username  # Optional: update session
-    flash('Username updated successfully.', 'success')
-    return redirect(url_for('profile'))
+    flash('Hey buddy, your password is changed!', 'success')
+    return redirect(url_for('account_routes.profile'))

@@ -53,7 +53,7 @@ def create_user(username, email, password):
         "uploads_count": {
             "image": 0,
             "video": 0,
-            "docs": 0,
+            "document": 0,
             "audio": 0,
             "others": 0
         }
@@ -68,8 +68,8 @@ def save_file_metadata(file_id, filename, file_type, file_extension, file_size, 
 
     metadata = {
         "_id": file_id,  # This will match the GridFS file ID
-        "filename": filename, # e.g. project.docs
-        "file_type": file_type,  # e.g., image, video, docs, audio, others
+        "filename": filename, # e.g. project.document
+        "file_type": file_type,  # e.g., image, video, document, audio, others
         "file_extension": file_extension,  # e.g., .jpg, .mp4
         "file_size": file_size, # in byte e.g 2322 bytes
         "owner_id": owner_id, 

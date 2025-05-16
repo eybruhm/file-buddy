@@ -2,54 +2,308 @@
 {% block title %}Upload File{% endblock %}
 {% block content %}
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Upload a File</h2>
+<style>
+    :root {
+        --primary-color: #4facfe;
+        --secondary-color: #00f2fe;
+    }
 
-    <form method="POST" enctype="multipart/form-data" onsubmit="return validatePassword();">
-        <!-- File Input -->
-        <div class="mb-3">
-            <label for="fileInput" class="form-label">Choose File <span class="text-danger">*</span></label>
-            <input class="form-control" type="file" id="fileInput" name="file" required>
-        </div>
+    .main-body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(to right, #d7e1ec, #f4f9ff);
+        color: #333;
+        min-height: calc(100vh - 56px - 52px); /* viewport height minus navbar and footer height */
+        display: flex;
+        flex-direction: column;
+        scroll-behavior: smooth;
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 20px;
+    }
 
-        <!-- Dynamic File Info -->
-        <div id="fileInfo" class="mb-4" style="display: none;">
-            <p><strong>Filename:</strong> <span id="fileName">-</span></p>
-            <p><strong>Size:</strong> <span id="fileSize">-</span> MB</p>
-            <p><strong>File Type:</strong> <span id="fileCategory">-</span></p>
-            <input type="hidden" name="file_type" id="file_type">
-        </div>
+    /* Floating bubbles background */
+    .bubbles {
+        background: rgba(16, 16, 16, 0.1);
+        position: fixed;
+        pointer-events: none;
+        width: 100%;
+        height: 100vh;
+        z-index: 0;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
 
-        <!-- Password Protection Option -->
-        <div class="mb-3">
-            <label class="form-label">Protect with password?</label>
-            <div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="passwordOption" id="passYes" value="yes">
-                    <label class="form-check-label" for="passYes">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="passwordOption" id="passNo" value="no" checked>
-                    <label class="form-check-label" for="passNo">No</label>
-                </div>
-            </div>
-        </div>
+    .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        opacity: 1;
+        animation: rise 15s infinite ease-in;
+    }
 
-        <!-- Password Fields -->
-        <div id="passwordFields" style="display: none;">
+    .bubble:nth-child(1) {
+        width: 40px;
+        height: 40px;
+        left: 10%;
+        animation-duration: 8s;
+    }
+
+    .bubble:nth-child(2) {
+        width: 20px;
+        height: 20px;
+        left: 20%;
+        animation-duration: 5s;
+        animation-delay: 1s;
+    }
+
+    .bubble:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        left: 35%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(4) {
+        width: 80px;
+        height: 80px;
+        left: 50%;
+        animation-duration: 11s;
+        animation-delay: 0s;
+    }
+
+    .bubble:nth-child(5) {
+        width: 35px;
+        height: 35px;
+        left: 55%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+    }
+
+    .bubble:nth-child(6) {
+        width: 45px;
+        height: 45px;
+        left: 65%;
+        animation-duration: 8s;
+        animation-delay: 3s;
+    }
+
+    .bubble:nth-child(7) {
+        width: 25px;
+        height: 25px;
+        left: 75%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(8) {
+        width: 80px;
+        height: 80px;
+        left: 80%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+    }
+
+    @keyframes rise {
+        0% {
+            bottom: -100px;
+            transform: translateX(0);
+        }
+        50% {
+            transform: translateX(100px);
+        }
+        100% {
+            bottom: 100vh;
+            transform: translateX(-200px);
+        }
+    }
+
+    .upload-container {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 50px 40px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+        height: auto;
+        min-height: fit-content;
+    }
+
+    .upload-container::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        z-index: -1;
+        border-radius: 27px;
+        opacity: 0.1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-body {
+            padding: 15px;
+        }
+        
+        .upload-container {
+            padding: 30px 20px;
+        }
+    }
+
+    /* Add validation styles */
+    .password-requirements {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .requirement {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 3px 0;
+    }
+
+    .requirement i {
+        font-size: 0.8rem;
+    }
+
+    .requirement.valid {
+        color: #198754;
+    }
+
+    .requirement.invalid {
+        color: #dc3545;
+    }
+
+    .password-input-group {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: none;
+        color: #666;
+        cursor: pointer;
+    }
+
+    .form-control.is-valid {
+        border-color: #198754;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+</style>
+
+<div class="main-body">
+    <!-- Floating bubbles background -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="upload-container">
+        <h2 class="text-center mb-4">Upload a File</h2>
+
+        <form method="POST" enctype="multipart/form-data" onsubmit="return validatePassword();">
+            <!-- File Input -->
             <div class="mb-3">
-                <label for="password" class="form-label">Enter Password</label>
-                <input type="password" class="form-control" name="password" id="password">
+                <label for="fileInput" class="form-label">Choose File <span class="text-danger">*</span></label>
+                <input class="form-control" type="file" id="fileInput" name="file" required>
             </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" name="confirmPassword" id="confirmPassword">
-            </div>
-        </div>
 
-        <!-- Upload Button -->
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
+            <!-- Dynamic File Info -->
+            <div id="fileInfo" class="mb-4" style="display: none;">
+                <p><strong>Filename:</strong> <span id="fileName">-</span></p>
+                <p><strong>Size:</strong> <span id="fileSize">-</span> MB</p>
+                <p><strong>File Type:</strong> <span id="fileCategory">-</span></p>
+                <input type="hidden" name="file_type" id="file_type">
+            </div>
+
+            <!-- Password Protection Option -->
+            <div class="mb-3">
+                <label class="form-label">Protect with password?</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="passwordOption" id="passYes" value="yes">
+                        <label class="form-check-label" for="passYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="passwordOption" id="passNo" value="no" checked>
+                        <label class="form-check-label" for="passNo">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Fields -->
+            <div id="passwordFields" style="display: none;">
+                <div class="mb-3">
+                    <label for="password" class="form-label">Enter Password</label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" name="password" id="password">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-requirements mt-2">
+                        <div class="requirement" id="length-check">
+                            <i class="bi bi-x-circle"></i> Minimum 8 characters
+                        </div>
+                        <div class="requirement" id="space-check">
+                            <i class="bi bi-x-circle"></i> No spaces allowed
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword">
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-requirements mt-2">
+                        <div class="requirement" id="match-check">
+                            <i class="bi bi-x-circle"></i> Passwords match
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Button -->
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -62,6 +316,7 @@
     const passYes = document.getElementById('passYes');
     const passNo = document.getElementById('passNo');
     const passwordFields = document.getElementById('passwordFields');
+    const uploadContainer = document.querySelector('.upload-container');
 
     // File category logic
     const fileCategories = {
@@ -98,33 +353,107 @@
         }
     });
 
+    // Function to adjust container height
+    function adjustContainerHeight() {
+        requestAnimationFrame(() => {
+            const form = document.querySelector('form');
+            const formHeight = form.offsetHeight;
+            uploadContainer.style.height = 'auto';
+            uploadContainer.style.minHeight = formHeight + 'px';
+        });
+    }
 
     passYes.addEventListener('click', () => {
         passwordFields.style.display = 'block';
+        adjustContainerHeight();
     });
 
     passNo.addEventListener('click', () => {
         passwordFields.style.display = 'none';
+        adjustContainerHeight();
     });
 
+    // Initial height adjustment
+    window.addEventListener('load', adjustContainerHeight);
+    // Adjust height on window resize
+    window.addEventListener('resize', adjustContainerHeight);
+
+    // Password validation functions
     function validatePassword() {
         if (passYes.checked) {
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
 
-            if (!pass || !confirm) {
-                alert("Please enter and confirm the password.");
-                return false;
+            // Check minimum length
+            const lengthValid = pass.length >= 8;
+            // Check for spaces
+            const noSpaces = !pass.includes(' ');
+            // Check if passwords match
+            const passwordsMatch = pass === confirm;
+
+            // Update requirement indicators
+            updateRequirement('length-check', lengthValid);
+            updateRequirement('space-check', noSpaces);
+            updateRequirement('match-check', passwordsMatch);
+
+            // Update input validation states
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+
+            if (pass.length > 0) {
+                passwordInput.classList.toggle('is-valid', lengthValid && noSpaces);
+                passwordInput.classList.toggle('is-invalid', !(lengthValid && noSpaces));
+            } else {
+                passwordInput.classList.remove('is-valid', 'is-invalid');
             }
 
-            if (pass !== confirm) {
-                alert("Passwords do not match.");
-                return false;
+            if (confirm.length > 0) {
+                confirmInput.classList.toggle('is-valid', passwordsMatch);
+                confirmInput.classList.toggle('is-invalid', !passwordsMatch);
+            } else {
+                confirmInput.classList.remove('is-valid', 'is-invalid');
             }
+
+            return lengthValid && noSpaces && passwordsMatch;
         }
         return true;
     }
 
+    function updateRequirement(id, isValid) {
+        const element = document.getElementById(id);
+        const icon = element.querySelector('i');
+        
+        if (isValid) {
+            element.classList.add('valid');
+            element.classList.remove('invalid');
+            icon.classList.remove('bi-x-circle');
+            icon.classList.add('bi-check-circle');
+        } else {
+            element.classList.add('invalid');
+            element.classList.remove('valid');
+            icon.classList.remove('bi-check-circle');
+            icon.classList.add('bi-x-circle');
+        }
+    }
+
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.nextElementSibling.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Add event listeners for password validation
+    document.getElementById('password').addEventListener('input', validatePassword);
+    document.getElementById('confirmPassword').addEventListener('input', validatePassword);
 </script>
 
 {% endblock %}

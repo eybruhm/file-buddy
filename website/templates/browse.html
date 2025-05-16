@@ -3,96 +3,374 @@
 {% block content %}
 
 <style>
+    :root {
+        --primary-color: #4facfe;
+        --secondary-color: #00f2fe;
+    }
+
+    .main-body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(to right, #d7e1ec, #f4f9ff);
+        color: #333;
+        min-height: calc(100vh - 56px - 52px);
+        display: flex;
+        flex-direction: column;
+        scroll-behavior: smooth;
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 20px 20px 0;
+    }
+
+    /* Floating bubbles background */
+    .bubbles {
+        background: rgba(16, 16, 16, 0.1);
+        position: fixed;
+        pointer-events: none;
+        width: 100%;
+        height: 100vh;
+        z-index: 0;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+
+    .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        opacity: 1;
+        animation: rise 15s infinite ease-in;
+    }
+
+    .bubble:nth-child(1) {
+        width: 40px;
+        height: 40px;
+        left: 10%;
+        animation-duration: 8s;
+    }
+
+    .bubble:nth-child(2) {
+        width: 20px;
+        height: 20px;
+        left: 20%;
+        animation-duration: 5s;
+        animation-delay: 1s;
+    }
+
+    .bubble:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        left: 35%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(4) {
+        width: 80px;
+        height: 80px;
+        left: 50%;
+        animation-duration: 11s;
+        animation-delay: 0s;
+    }
+
+    .bubble:nth-child(5) {
+        width: 35px;
+        height: 35px;
+        left: 55%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+    }
+
+    .bubble:nth-child(6) {
+        width: 45px;
+        height: 45px;
+        left: 65%;
+        animation-duration: 8s;
+        animation-delay: 3s;
+    }
+
+    .bubble:nth-child(7) {
+        width: 25px;
+        height: 25px;
+        left: 75%;
+        animation-duration: 7s;
+        animation-delay: 2s;
+    }
+
+    .bubble:nth-child(8) {
+        width: 80px;
+        height: 80px;
+        left: 80%;
+        animation-duration: 6s;
+        animation-delay: 1s;
+    }
+
+    @keyframes rise {
+        0% {
+            bottom: -100px;
+            transform: translateX(0);
+        }
+        50% {
+            transform: translateX(100px);
+        }
+        100% {
+            bottom: 100vh;
+            transform: translateX(-200px);
+        }
+    }
+
+    .browse-container {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+
+    .browse-container::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        z-index: -1;
+        border-radius: 27px;
+        opacity: 0.1;
+    }
+
     .card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
 
     .card-body {
         flex-grow: 1;
     }
 
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-body {
+            padding: 15px;
+        }
+        
+        .browse-container {
+            padding: 20px;
+        }
+    }
+
+    /* Card color schemes */
+    .user-card {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .document-card {
+        background: rgba(233, 237, 201, 0.9) !important; /* #e9edc9 */
+    }
+
+    .image-card {
+        background: rgba(254, 250, 224, 0.9) !important; /* #fefae0 */
+    }
+
+    .video-card {
+        background: rgba(231, 219, 187, 0.9) !important; /* #faedcd */
+    }
+
+    .audio-card {
+        background: rgba(204, 213, 174, 0.9) !important; /* #ccd5ae */
+    }
+
+    .others-card {
+        background: rgba(212, 163, 115, 0.9) !important; /* #d4a373 */
+    }
+
+    .user-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .stats-icon {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+        color: #666;
+    }
+
+    /* Improve card text contrast */
+    .card-title {
+        color: #2b2d42;
+        font-weight: 600;
+    }
+
+    .card-text {
+        color: #2b2d42;
+    }
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .file-info i {
+        width: 20px;
+        margin-right: 8px;
+        color: #2b2d42;
+    }
 </style>
 
+<div class="main-body">
+    <!-- Floating bubbles background -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Browse Files</h2>
+    <div class="browse-container">
+        <h2 class="text-center mb-4">Browse Files</h2>
 
-    <!-- Filter Form -->
-    <form class="row mb-4" id="searchForm" method="get" action="{{ url_for('account_routes.browse') }}">
-        <div class="col-md-4 mb-2">
-            <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ request.args.get('search', '') }}">
-        </div>
-        <div class="col-md-3 mb-2">
-            <select class="form-select" name="type">
-                <option value="all" {% if request.args.get('type') == 'all' %}selected{% endif %}>All</option>
-                <option value="files" {% if request.args.get('type') == 'files' %}selected{% endif %}>Files</option>
-                <option value="users" {% if request.args.get('type') == 'users' %}selected{% endif %}>Users</option>
-            </select>
-        </div>
-        <div class="col-md-3 mb-2">
-            <select class="form-select" name="file_type">
-                <option value="all" {% if request.args.get('file_type') == 'all' %}selected{% endif %}>All</option>
-                <option value="docs" {% if request.args.get('file_type') == 'docs' %}selected{% endif %}>Documents</option>
-                <option value="image" {% if request.args.get('file_type') == 'image' %}selected{% endif %}>Images</option>
-                <option value="video" {% if request.args.get('file_type') == 'video' %}selected{% endif %}>Videos</option>
-                <option value="audio" {% if request.args.get('file_type') == 'audio' %}selected{% endif %}>Audios</option>
-                <option value="others" {% if request.args.get('file_type') == 'others' %}selected{% endif %}>Others</option>
-            </select>
-        </div>
-        <div class="col-md-2 mb-2">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
-        </div>
-    </form>
+        <!-- Filter Form -->
+        <form class="row mb-4" id="searchForm" method="get" action="{{ url_for('account_routes.browse') }}">
+            <div class="col-md-4 mb-2">
+                <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-3 mb-2">
+                <select class="form-select" name="type" id="selectType">
+                    <option value="all" {% if request.args.get('type') == 'all' %}selected{% endif %}>All</option>
+                    <option value="files" {% if request.args.get('type') == 'files' %}selected{% endif %}>Files</option>
+                    <option value="users" {% if request.args.get('type') == 'users' %}selected{% endif %}>Users</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-2" id="fileTypeContainer" style="display: none;">
+                <select class="form-select" name="file_type">
+                    <option value="all" {% if request.args.get('file_type') == 'all' %}selected{% endif %}>All</option>
+                    <option value="document" {% if request.args.get('file_type') == 'document' %}selected{% endif %}>Documents</option>
+                    <option value="image" {% if request.args.get('file_type') == 'image' %}selected{% endif %}>Images</option>
+                    <option value="video" {% if request.args.get('file_type') == 'video' %}selected{% endif %}>Videos</option>
+                    <option value="audio" {% if request.args.get('file_type') == 'audio' %}selected{% endif %}>Audios</option>
+                    <option value="others" {% if request.args.get('file_type') == 'others' %}selected{% endif %}>Others</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
 
-    <!-- Dynamic Results -->
-    <div class="row" id="results">
-        <!-- 🔹 User Cards -->
-        {% for user in users %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">👤 {{ user.username }}</h5>
-                    <p>Uploads: {{ user.uploads_count }}</p>
-                    <p>Joined: {{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</p>
+        <!-- Dynamic Results -->
+        <div class="row" id="results">
+            <!-- User Cards -->
+            {% for user in users %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm user-card text-center">
+                    <div class="card-body">
+                        <div class="user-icon">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <h5 class="card-title mb-3">{{ user.username }}</h5>
+                        <div class="file-info justify-content-center">
+                            <i class="bi bi-file-earmark-text stats-icon"></i>
+                            <span>{{ user.uploads_count }} Uploads</span>
+                        </div>
+                        <div class="file-info justify-content-center">
+                            <i class="bi bi-calendar3 stats-icon"></i>
+                            <span>Joined: {{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
 
-        <!-- 🔹 File Cards -->
-        {% for file in files %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">{{ file.filename }}</h5>
-                    <p>Type: {{ file.file_type|capitalize }}</p>
-                    <p>Size: {{ file.file_size_mb }} MB</p>
-                    <p>Owner: {{ file.owner_username }}</p>
-                    <p>
-                        {% if file.is_protected %}
-                            <span class="badge bg-warning">With Password</span>
-                        {% else %}
-                            <span class="badge bg-success">No Password</span>
-                        {% endif %}
-                    </p>
-                    {% if file.is_owner %}
-                        <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">Download</a>
-                        <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>                        
-                    {% else %}
-                        {% if file.is_protected %}
-                            <button class="btn btn-primary btn-sm" onclick="askPassword('{{ file.file_id }}')">Download</button>
-                        {% else %}
-                            <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">Download</a>
-                        {% endif %}
-                    {% endif %}
+            <!-- File Cards -->
+            {% for file in files %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm {{ file.file_type }}-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {% if file.file_type == 'document' %}
+                                <i class="bi bi-file-earmark-text me-2"></i>
+                            {% elif file.file_type == 'image' %}
+                                <i class="bi bi-image me-2"></i>
+                            {% elif file.file_type == 'video' %}
+                                <i class="bi bi-camera-video me-2"></i>
+                            {% elif file.file_type == 'audio' %}
+                                <i class="bi bi-music-note-beamed me-2"></i>
+                            {% else %}
+                                <i class="bi bi-folder me-2"></i>
+                            {% endif %}
+                            {{ file.filename }}
+                        </h5>
+                        <div class="file-info">
+                            <i class="bi bi-tag"></i>
+                            <span>{{ file.file_type|capitalize }}</span>
+                        </div>
+                        <div class="file-info">
+                            <i class="bi bi-hdd"></i>
+                            <span>{{ file.file_size_mb }} MB</span>
+                        </div>
+                        <div class="file-info">
+                            <i class="bi bi-person"></i>
+                            <span>{{ file.owner_username }}</span>
+                        </div>
+                        <div class="file-info mb-3">
+                            {% if file.is_protected %}
+                                <i class="bi bi-lock-fill text-warning"></i>
+                                <span class="badge bg-warning">Password Protected</span>
+                            {% else %}
+                                <i class="bi bi-unlock text-success"></i>
+                                <span class="badge bg-success">No Password</span>
+                            {% endif %}
+                        </div>
+                        <div class="mt-auto">
+                            {% if file.is_owner %}
+                                <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-download me-1"></i>Download
+                                </a>
+                                <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash me-1"></i>Delete
+                                    </button>
+                                </form>                        
+                            {% else %}
+                                {% if file.is_protected %}
+                                    <button class="btn btn-primary btn-sm" onclick="askPassword('{{ file.file_id }}')">
+                                        <i class="bi bi-key-fill me-1"></i>Download
+                                    </button>
+                                {% else %}
+                                    <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-download me-1"></i>Download
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
 
@@ -118,11 +396,27 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectType = document.getElementById('selectType');
+        const fileTypeContainer = document.getElementById('fileTypeContainer');
+
+        function toggleFileTypeVisibility() {
+            if (selectType.value === 'files') {
+                fileTypeContainer.style.display = 'block';
+            } else {
+                fileTypeContainer.style.display = 'none';
+            }
+        }
+
+        toggleFileTypeVisibility();
+
+        selectType.addEventListener('change', toggleFileTypeVisibility);
+    });
+
     function askPassword(fileId) {
         document.getElementById("fileIdToDownload").value = fileId;
         new bootstrap.Modal(document.getElementById('passwordModal')).show();
     }
-
 
      // Close the password modal after successful verification
      document.getElementById("passwordForm").addEventListener("submit", function(event) {

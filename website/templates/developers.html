@@ -373,8 +373,8 @@
   }
 
   .prof-dedication-card:hover {
-    transform: translateY(-5px) scale(1.01);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
   }
 
   .prof-dedication-card .img-thumbnail {
@@ -382,6 +382,11 @@
     height: 120px;
     object-fit: fill; /* Ensures the image doesn't stretch */
   }
+
+  .prof-dedication-card:hover .img-thumbnail {
+    border: 1px solid red;
+  }
+     
 
   /* Mobile Styles */
   @media (max-width: 767px) {
@@ -452,7 +457,7 @@
             <img src="{{ url_for('static', filename='pfp-Maganes.jfif') }}" class="mx-auto d-block" alt="Dev 2">
             <div class="card-body">
               <h5>Gabriel Angelo Maganes</h5>
-              <div class="role">#</div>
+              <div class="role">Researcher</div>
               <p><i class="bi bi-mortarboard-fill"></i>SBCS-2A</p>
               <p><i class="bi bi-geo-alt-fill"></i>QCU - San Bartolome</p>
               <p><i class="bi bi-envelope-fill"></i>maganes.gabrielangelo.razon@gmail.com</p>
