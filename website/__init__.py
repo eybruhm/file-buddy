@@ -47,14 +47,19 @@ def create_app():
     from .file_routes import file_routes
     app.register_blueprint(file_routes)
 
-    # ✅ Initialize MongoDB collections (as references)
-    app.db = mongo.db  # Shortcut to access database
-    app.users_col = mongo.db.users  # User info
-    app.files_col = mongo.db.files  # File metadata (type, size, privacy, owner, etc.)
+    with app.app_context():
+        # ✅ Initialize MongoDB collections (as references)
+        app.db = mongo.db  # Shortcut to access database
+        if not mongo.db.users:  # Create collections if they don't exist
+            mongo.db.create_collection("users")
+        if not mongo.db.files:
+            mongo.db.create_collection("files")
+        
+        app.users_col = mongo.db.users  # User info
+        app.files_col = mongo.db.files  # File metadata
 
-    # ✅ Optional: Create index for faster search (e.g., on username, file name, etc.)
-    app.files_col.create_index("filename")
-    app.files_col.create_index("owner_id")
-
+        # ✅ Optional: Create index for faster search
+        app.files_col.create_index("filename")
+        app.files_col.create_index("owner_id")
 
     return app
