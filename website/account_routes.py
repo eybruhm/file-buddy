@@ -4,12 +4,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import random
 import os
-from . import mail
+from . import mail, mongo
 from .models import User
 from functools import wraps
 from bson.objectid import ObjectId
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
+
 
 
 # Define the Blueprint
@@ -102,7 +103,7 @@ def login():
         password = request.form.get('password')
 
         # 🔹 Find user by email
-        user = current_app.mongo.db.users.find_one({"email": email})
+        user = mongo.db.users.find_one({"email": email})
 
         if not user:
             flash("Email not found. Please sign up.", "danger")
@@ -160,8 +161,8 @@ def browse():
     user_cards = []
     file_cards = []
 
-    users_col = current_app.mongo.db.users
-    files_col = current_app.mongo.db.files
+    users_col = mongo.db.users
+    files_col = mongo.db.files
 
     # 🔹 Search for matching users if allowed
     if selected_type in ["all", "users"]:
@@ -226,10 +227,10 @@ def developers():
 @login_required
 def profile():
     user_id = current_user.id
-    user = current_app.mongo.db.users.find_one({'_id': ObjectId(user_id)})
+    user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
 
     # Get files and convert sizes to MB
-    raw_files = list(current_app.mongo.db.files.find({'owner_id': user_id}))
+    raw_files = list(mongo.db.files.find({'owner_id': user_id}))
     files = []
     for f in raw_files:
         f['file_size_mb'] = round(f.get('file_size', 0) / (1024 * 1024), 2)  # Convert bytes to MB
@@ -316,13 +317,13 @@ def signup():
             return redirect(url_for('account_routes.signup'))
 
         # 🔹 Check if email already exists
-        existing_user = current_app.mongo.db.users.find_one({"email": email})
+        existing_user = mongo.db.users.find_one({"email": email})
         if existing_user:
             flash('Email is already registered. Please log in.', 'danger')
             return redirect(url_for('account_routes.signup'))
         
         # 🔹 Check if username already exists
-        existing_user = current_app.mongo.db.users.find_one({"username": username})
+        existing_user = mongo.db.users.find_one({"username": username})
         if existing_user:
             flash('Username is already taken. Please change it.', 'danger')
             return redirect(url_for('account_routes.signup'))
@@ -368,11 +369,11 @@ def email_verification():
         # 🔹 Check if the entered code matches the stored code
         if entered_code == signup_data['verification_code']:
             # ✅ Insert user into database
-            current_app.mongo.db.users.insert_one({
+            mongo.db.users.insert_one({
                 "username": signup_data['username'],
                 "email": signup_data['email'],
                 "password_hashed": signup_data['password'],  # Already hashed password
-                "created_at": current_app.mongo.db.command("serverStatus")["localTime"],
+                "created_at": mongo.db.command("serverStatus")["localTime"],
                 "storage_used": 0,
                 "max_storage": 5000000000,  # 5GB limit
                 "total_uploads": 0,
@@ -482,7 +483,7 @@ def forgot_password_identify_email():
         email = request.form.get('email')  # Get the email entered by user
 
         # 🔹 Check if the email exists in the database
-        user = current_app.mongo.db.users.find_one({"email": email})
+        user = mongo.db.users.find_one({"email": email})
 
         if not user:
             flash("Email not found. Please sign up.", "danger")  # Flash message if email doesn't exist
@@ -582,7 +583,7 @@ def change_password():
 
         # Update the password in the database
         email = forgot_password_data['email']  # Get the email from session
-        current_app.mongo.db.users.update_one({"email": email}, {"$set": {"password_hashed": hashed_password}})
+        mongo.db.users.update_one({"email": email}, {"$set": {"password_hashed": hashed_password}})
 
         # Clear the session data (no longer needed)
         session.pop('forgot_password_data', None)
@@ -599,7 +600,7 @@ def change_password():
 @login_required
 def check_username():
     username = request.args.get('username', '').strip().lower()
-    existing_user = current_app.mongo.db.users.find_one({'username': username})
+    existing_user = mongo.db.users.find_one({'username': username})
     # Username is available if no user found or if it's the current user's username
     is_available = not existing_user or str(existing_user['_id']) == current_user.id
     return jsonify({'available': is_available})
@@ -615,13 +616,13 @@ def update_username():
         return redirect(url_for('account_routes.profile'))
 
     # Check if username is already taken
-    existing_user = current_app.mongo.db.users.find_one({'username': new_username})
+    existing_user = mongo.db.users.find_one({'username': new_username})
     if existing_user and str(existing_user['_id']) != current_user.id:
         flash('Username is already taken.', 'danger')
         return redirect(url_for('account_routes.profile'))
 
     # Update username in database
-    current_app.mongo.db.users.update_one(
+    mongo.db.users.update_one(
         {'_id': ObjectId(current_user.id)},
         {'$set': {'username': new_username}}
     )
@@ -650,7 +651,7 @@ def update_password():
 
     # Update password in database
     hashed_password = generate_password_hash(new_password)
-    current_app.mongo.db.users.update_one(
+    mongo.db.users.update_one(
         {'_id': ObjectId(current_user.id)},
         {'$set': {'password_hashed': hashed_password}}
     )

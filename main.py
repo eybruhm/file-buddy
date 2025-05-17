@@ -13,6 +13,9 @@ try:
     # Create the Flask app
     app = create_app()
     
+    # ✅ TURN ON DEBUG MODE TEMPORARILY
+    app.debug = True  
+
     if __name__ == "__main__":
         # Get port from environment variable or default to 5000
         port = int(os.environ.get("PORT", 5000))

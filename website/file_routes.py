@@ -7,13 +7,14 @@ from datetime import datetime
 import os
 import io
 from io import BytesIO
+from . import mongo
 
 # Create the blueprint
 file_routes = Blueprint("file_routes", __name__)
 
 # Initialize GridFS within a function
 def get_gridfs():
-    return gridfs.GridFS(current_app.mongo.db)
+    return gridfs.GridFS(mongo.db)
 
 @file_routes.route("/upload", methods=["GET", "POST"])
 @login_required
@@ -45,7 +46,7 @@ def upload_file():
             gridfs_id = fs.put(uploaded_file, filename=filename)
 
             # Store metadata in 'files' collection
-            current_app.mongo.db.files.insert_one({
+            mongo.db.files.insert_one({
                 "filename": filename,
                 "file_type": file_type,
                 "file_extension": file_ext,
@@ -57,7 +58,7 @@ def upload_file():
             })
 
             # Update user's upload stats
-            current_app.mongo.db.users.update_one(
+            mongo.db.users.update_one(
                 {"_id": ObjectId(current_user.get_id())},
                 {
                     "$inc": {
@@ -81,7 +82,7 @@ def upload_file():
 def download_file(file_id):
     try:
         # Retrieve file based on the file_id from the URL
-        file = current_app.mongo.db.files.find_one({"_id": ObjectId(file_id)})
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id)})
         if not file:
             flash("File not found", "danger")
             return redirect(url_for("account_routes.browse"))
@@ -106,7 +107,7 @@ def verify_password():
         file_id = request.form.get("file_id")
         password = request.form.get("password")
 
-        file = current_app.mongo.db.files.find_one({"_id": ObjectId(file_id)})
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id)})
 
         if not file:
             return {"success": False, "message": "File not found"}, 400
@@ -125,7 +126,7 @@ def verify_password():
 @login_required
 def delete_file(file_id):
     try:
-        file = current_app.mongo.db.files.find_one({"_id": ObjectId(file_id)})
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id)})
         if not file:
             flash("File not found", "danger")
             return redirect(url_for("account_routes.browse"))
@@ -139,7 +140,7 @@ def delete_file(file_id):
 
         # Delete from GridFS and database
         fs.delete(ObjectId(file["file_url"]))
-        current_app.mongo.db.files.delete_one({"_id": ObjectId(file_id)})
+        mongo.db.files.delete_one({"_id": ObjectId(file_id)})
 
         flash("File deleted", "success")
         return redirect(url_for("account_routes.browse"))

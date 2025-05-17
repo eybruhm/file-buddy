@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 import logging
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 # Set up logging
 logging.basicConfig(
@@ -19,63 +20,44 @@ load_dotenv()
 
 # Initialize Flask extensions
 mail = Mail()
-login_manager = LoginManager()
 mongo = PyMongo()
-
-def init_mongo_collections(app):
-    """Initialize MongoDB collections and indexes."""
-    try:
-        with app.app_context():
-            db = mongo.db
-            # Create collections if they don't exist
-            collections = db.list_collection_names()
-            if "users" not in collections:
-                db.create_collection("users")
-            if "files" not in collections:
-                db.create_collection("files")
-            
-            # Create indexes
-            db.users.create_index("email", unique=True)
-            db.users.create_index("username", unique=True)
-            db.files.create_index([("filename", 1), ("owner_id", 1)])
-            
-            logger.info("MongoDB collections and indexes initialized successfully!")
-    except Exception as e:
-        logger.error(f"Error initializing MongoDB collections: {str(e)}")
-        raise
+login_manager = LoginManager()
 
 def create_app():
     """Factory function to create and configure the Flask app."""
     app = Flask(__name__)
     
     # Configure app
-    app.config["SECRET_KEY"] = os.getenv('FLASK_SECRET_KEY', os.urandom(24))
+    app.config["SECRET_KEY"] = os.getenv('FLASK_SECRET_KEY')
     
     # Configure MongoDB
     mongodb_uri = os.getenv('MONGO_URI')
     if not mongodb_uri:
         raise ValueError("No MongoDB URI found in environment variables")
     
+    # Configure Flask-PyMongo
+    app.config["MONGO_URI"] = mongodb_uri
+    
+    # Initialize MongoDB connection first
+    mongo.init_app(app)
+    
     try:
-        print("MONGO_URI =", mongodb_uri)
-        print("🔁 Testing pymongo client...")
-        try:
-            client = MongoClient(mongodb_uri)
-            client.admin.command('ping')
-            print("✅ pymongo connected successfully!")
-        except Exception as e:
-            print("❌ pymongo failed:", e)
-        # Configure Flask-PyMongo
-        app.config["MONGO_URI"] = mongodb_uri
-        mongo.init_app(app)
-        
-        # Test connection using Flask-PyMongo's connection
+        # Test connection using PyMongo
         with app.app_context():
-            mongo.db.command('ping')
-            logger.info("MongoDB connection test successful!")
+            # Create collections if they don't exist
+            if "users" not in mongo.db.list_collection_names():
+                mongo.db.create_collection("users")
+                logger.info("Created users collection")
             
-            # Initialize collections and indexes
-            init_mongo_collections(app)
+            if "files" not in mongo.db.list_collection_names():
+                mongo.db.create_collection("files")
+                logger.info("Created files collection")
+            
+            # Create indexes
+            mongo.db.users.create_index("email", unique=True)
+            mongo.db.users.create_index("username", unique=True)
+            mongo.db.files.create_index([("filename", 1), ("owner_id", 1)])
+            logger.info("Database indexes created successfully")
             
     except Exception as e:
         logger.error(f"MongoDB configuration error: {str(e)}")
@@ -96,6 +78,17 @@ def create_app():
     mail.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'account_routes.login'
+
+    # User loader callback
+    @login_manager.user_loader
+    def load_user(user_id):
+        if not user_id:
+            return None
+        from .models import User
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if user:
+            return User(user_id=str(user["_id"]), username=user["username"], email=user["email"])
+        return None
 
     # Register blueprints
     from .account_routes import account_routes

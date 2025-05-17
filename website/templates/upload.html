@@ -233,44 +233,44 @@
     </div>
 
     <div class="upload-container">
-        <h2 class="text-center mb-4">Upload a File</h2>
+    <h2 class="text-center mb-4">Upload a File</h2>
 
-        <form method="POST" enctype="multipart/form-data" onsubmit="return validatePassword();">
-            <!-- File Input -->
-            <div class="mb-3">
-                <label for="fileInput" class="form-label">Choose File <span class="text-danger">*</span></label>
-                <input class="form-control" type="file" id="fileInput" name="file" required>
-            </div>
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validatePassword();">
+        <!-- File Input -->
+        <div class="mb-3">
+            <label for="fileInput" class="form-label">Choose File <span class="text-danger">*</span></label>
+            <input class="form-control" type="file" id="fileInput" name="file" required>
+        </div>
 
-            <!-- Dynamic File Info -->
-            <div id="fileInfo" class="mb-4" style="display: none;">
-                <p><strong>Filename:</strong> <span id="fileName">-</span></p>
-                <p><strong>Size:</strong> <span id="fileSize">-</span> MB</p>
-                <p><strong>File Type:</strong> <span id="fileCategory">-</span></p>
-                <input type="hidden" name="file_type" id="file_type">
-            </div>
+        <!-- Dynamic File Info -->
+        <div id="fileInfo" class="mb-4" style="display: none;">
+            <p><strong>Filename:</strong> <span id="fileName">-</span></p>
+            <p><strong>Size:</strong> <span id="fileSize">-</span> MB</p>
+            <p><strong>File Type:</strong> <span id="fileCategory">-</span></p>
+            <input type="hidden" name="file_type" id="file_type">
+        </div>
 
-            <!-- Password Protection Option -->
-            <div class="mb-3">
-                <label class="form-label">Protect with password?</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="passwordOption" id="passYes" value="yes">
-                        <label class="form-check-label" for="passYes">Yes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="passwordOption" id="passNo" value="no" checked>
-                        <label class="form-check-label" for="passNo">No</label>
-                    </div>
+        <!-- Password Protection Option -->
+        <div class="mb-3">
+            <label class="form-label">Protect with password?</label>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="passwordOption" id="passYes" value="yes">
+                    <label class="form-check-label" for="passYes">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="passwordOption" id="passNo" value="no" checked>
+                    <label class="form-check-label" for="passNo">No</label>
                 </div>
             </div>
+        </div>
 
-            <!-- Password Fields -->
-            <div id="passwordFields" style="display: none;">
-                <div class="mb-3">
-                    <label for="password" class="form-label">Enter Password</label>
+        <!-- Password Fields -->
+        <div id="passwordFields" style="display: none;">
+            <div class="mb-3">
+                <label for="password" class="form-label">Enter Password</label>
                     <div class="password-input-group">
-                        <input type="password" class="form-control" name="password" id="password">
+                <input type="password" class="form-control" name="password" id="password">
                         <button type="button" class="password-toggle" onclick="togglePassword('password')">
                             <i class="bi bi-eye"></i>
                         </button>
@@ -283,11 +283,11 @@
                             <i class="bi bi-x-circle"></i> No spaces allowed
                         </div>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+            </div>
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
                     <div class="password-input-group">
-                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword">
+                <input type="password" class="form-control" name="confirmPassword" id="confirmPassword">
                         <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
                             <i class="bi bi-eye"></i>
                         </button>
@@ -298,11 +298,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
+        </div>
 
-            <!-- Upload Button -->
-            <button type="submit" class="btn btn-primary">Upload</button>
-        </form>
+        <!-- Upload Button -->
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
     </div>
 </div>
 
