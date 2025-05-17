@@ -9,7 +9,8 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime
 from flask_login import UserMixin
 from bson.objectid import ObjectId
-from . import mongo, login_manager
+from flask import current_app
+from . import login_manager
 
 
 
@@ -24,7 +25,7 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     """Fetch user from database by ID for session tracking."""
-    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    user = current_app.mongo.db.users.find_one({"_id": ObjectId(user_id)})
     if user:
         return User(str(user["_id"]), user["username"], user["email"])
     return None
@@ -32,11 +33,11 @@ def load_user(user_id):
 # ✅ Function to Create a New User
 def create_user(username, email, password):
     """Creates a new user in MongoDB."""
-    users_collection = mongo.db.users  
+    users_collection = current_app.mongo.db.users
 
     # Check if email exists
     if users_collection.find_one({"email": email}):
-        return None  
+        return None
 
     # Hash password
     hashed_password = generate_password_hash(password)
@@ -64,7 +65,7 @@ def create_user(username, email, password):
 # ✅ Function to store file metadata in MongoDB
 def save_file_metadata(file_id, filename, file_type, file_extension, file_size, owner_id, privacy, password=None):
     """Saves metadata of uploaded files to MongoDB."""
-    files_collection = mongo.db.files
+    files_collection = current_app.mongo.db.files
 
     metadata = {
         "_id": file_id,  # This will match the GridFS file ID

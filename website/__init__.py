@@ -4,13 +4,12 @@ from flask_pymongo import PyMongo
 from flask_mail import Mail
 from flask_login import LoginManager
 from dotenv import load_dotenv
-import pymongo
+from pymongo import MongoClient
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Create database and mail objects
-mongo = PyMongo()
+# Create mail and login objects
 mail = Mail()
 login_manager = LoginManager()
 
@@ -25,8 +24,24 @@ def create_app():
     mongodb_uri = os.getenv('MONGO_URI')
     if not mongodb_uri:
         raise ValueError("No MongoDB URI found in environment variables")
-    
-    app.config["MONGO_URI"] = mongodb_uri
+
+    try:
+        # Create a direct MongoDB connection first to test
+        client = MongoClient(mongodb_uri)
+        # Test the connection
+        client.admin.command('ping')
+        print("MongoDB connection successful!")
+        
+        # Now set up Flask-PyMongo
+        app.config["MONGO_URI"] = mongodb_uri
+        mongo = PyMongo(app)
+        
+        # Make mongo available to other modules
+        app.mongo = mongo
+        
+    except Exception as e:
+        print(f"MongoDB connection error: {e}")
+        raise
 
     # ✅ Configure Flask-Mail with Gmail
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -39,8 +54,7 @@ def create_app():
     app.config['MAIL_MAX_EMAILS'] = None
     app.config['MAIL_ASCII_ATTACHMENTS'] = False
 
-    # Initialize extensions
-    mongo.init_app(app)
+    # Initialize mail and login
     mail.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'account_routes.login'
@@ -53,12 +67,7 @@ def create_app():
     app.register_blueprint(file_routes)
 
     with app.app_context():
-        # Test MongoDB connection
         try:
-            # Force a database command to test the connection
-            mongo.db.command('ping')
-            print("MongoDB connection successful!")
-            
             # Initialize collections
             db = mongo.db
             if "users" not in db.list_collection_names():
@@ -76,7 +85,7 @@ def create_app():
             app.files_col.create_index("owner_id")
             
         except Exception as e:
-            print(f"MongoDB connection error: {e}")
+            print(f"MongoDB collection initialization error: {e}")
             raise
 
     return app
