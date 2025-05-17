@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, flash, send_file, abort, make_response
+from flask import Blueprint, request, redirect, url_for, flash, send_file, abort, make_response, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import gridfs
@@ -6,13 +6,15 @@ from bson.objectid import ObjectId
 from datetime import datetime
 import os
 import io
-from . import mongo  # adjust if your db is imported 
+from . import mongo
 from io import BytesIO
 
-
-fs = gridfs.GridFS(mongo.db)
-
+# Create the blueprint
 file_routes = Blueprint("file_routes", __name__)
+
+# Initialize GridFS within a function
+def get_gridfs():
+    return gridfs.GridFS(mongo.db)
 
 @file_routes.route("/upload", methods=["GET", "POST"])
 @login_required
@@ -36,6 +38,9 @@ def upload_file():
         file_size = len(uploaded_file.read())  # get file size in bytes
         uploaded_file.seek(0)  # reset stream to beginning for saving
 
+        # Get GridFS instance
+        fs = get_gridfs()
+
         # Store file in GridFS
         gridfs_id = fs.put(uploaded_file, filename=filename)
 
@@ -45,9 +50,9 @@ def upload_file():
             "file_type": file_type,
             "file_extension": file_ext,
             "file_size": file_size,
-            "owner_id": current_user.get_id(),  # assumed to be _id as str
+            "owner_id": current_user.get_id(),
             "upload_date": datetime.utcnow(),
-            "password": password,  # can be None
+            "password": password,
             "file_url": str(gridfs_id)
         })
 
@@ -77,6 +82,9 @@ def download_file(file_id):
             flash("File not found", "danger")
             return redirect(url_for("account_routes.browse"))
 
+        # Get GridFS instance
+        fs = get_gridfs()
+        
         file_data = fs.get(ObjectId(file["file_url"]))
         response = make_response(file_data.read())
         response.headers.set("Content-Type", "application/octet-stream")
@@ -86,9 +94,6 @@ def download_file(file_id):
         flash("Error downloading file", "danger")
         print("Error downloading file:", e)
         return redirect(url_for("account_routes.browse"))
-
-
-
 
 @file_routes.route("/verify-password", methods=["POST"])
 @login_required
@@ -108,11 +113,6 @@ def verify_password():
     download_url = url_for('file_routes.download_file', file_id=file_id, _external=True)
     return {"success": True, "download_url": download_url}
 
-
-
-
-
-
 @file_routes.route("/delete/<file_id>", methods=["POST"])
 @login_required
 def delete_file(file_id):
@@ -124,6 +124,9 @@ def delete_file(file_id):
     if str(file["owner_id"]) != current_user.get_id():
         flash("You don't have permission to delete this file", "danger")
         return redirect(url_for("account_routes.browse"))
+
+    # Get GridFS instance
+    fs = get_gridfs()
 
     # Delete from GridFS and database
     fs.delete(ObjectId(file["file_url"]))
