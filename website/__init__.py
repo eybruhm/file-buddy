@@ -4,6 +4,7 @@ from flask_pymongo import PyMongo
 from flask_mail import Mail
 from flask_login import LoginManager
 from dotenv import load_dotenv
+import pymongo
 
 # Load environment variables from .env file
 load_dotenv()
@@ -21,7 +22,11 @@ def create_app():
     app.config["SECRET_KEY"] = os.getenv('FLASK_SECRET_KEY', os.urandom(24))
 
     # Configure MongoDB connection using environment variable
-    app.config["MONGO_URI"] = os.getenv('MONGO_URI')
+    mongodb_uri = os.getenv('MONGO_URI')
+    if not mongodb_uri:
+        raise ValueError("No MongoDB URI found in environment variables")
+    
+    app.config["MONGO_URI"] = mongodb_uri
 
     # ✅ Configure Flask-Mail with Gmail
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -48,18 +53,30 @@ def create_app():
     app.register_blueprint(file_routes)
 
     with app.app_context():
-        # ✅ Initialize MongoDB collections (as references)
-        app.db = mongo.db  # Shortcut to access database
-        if not mongo.db.users:  # Create collections if they don't exist
-            mongo.db.create_collection("users")
-        if not mongo.db.files:
-            mongo.db.create_collection("files")
-        
-        app.users_col = mongo.db.users  # User info
-        app.files_col = mongo.db.files  # File metadata
-
-        # ✅ Optional: Create index for faster search
-        app.files_col.create_index("filename")
-        app.files_col.create_index("owner_id")
+        # Test MongoDB connection
+        try:
+            # Force a database command to test the connection
+            mongo.db.command('ping')
+            print("MongoDB connection successful!")
+            
+            # Initialize collections
+            db = mongo.db
+            if "users" not in db.list_collection_names():
+                db.create_collection("users")
+            if "files" not in db.list_collection_names():
+                db.create_collection("files")
+            
+            # Set up collection references
+            app.db = db
+            app.users_col = db.users
+            app.files_col = db.files
+            
+            # Create indexes
+            app.files_col.create_index("filename")
+            app.files_col.create_index("owner_id")
+            
+        except Exception as e:
+            print(f"MongoDB connection error: {e}")
+            raise
 
     return app
