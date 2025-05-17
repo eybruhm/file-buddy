@@ -3,6 +3,10 @@ from flask import Flask
 from flask_pymongo import PyMongo
 from flask_mail import Mail
 from flask_login import LoginManager
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Create database and mail objects
 mongo = PyMongo()
@@ -14,18 +18,21 @@ def create_app():
     app = Flask(__name__)
 
     # 🔹 Set a secret key for session security
-    app.config["SECRET_KEY"] = os.urandom(24)
+    app.config["SECRET_KEY"] = os.getenv('FLASK_SECRET_KEY', os.urandom(24))
 
-    # Configure MongoDB connection
-    app.config["MONGO_URI"] = "mongodb://localhost:27017/FileSharingDB"
+    # Configure MongoDB connection using environment variable
+    app.config["MONGO_URI"] = os.getenv('MONGO_URI')
 
-    # ✅ Configure Flask-Mail
+    # ✅ Configure Flask-Mail with Gmail
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
     app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-    app.config['MAIL_DEFAULT_SENDER'] = "filebuddy.6@gmail.com"
+    app.config['MAIL_DEFAULT_SENDER'] = ('File Buddy', os.getenv('MAIL_USERNAME'))
+    app.config['MAIL_MAX_EMAILS'] = None
+    app.config['MAIL_ASCII_ATTACHMENTS'] = False
 
     # Initialize extensions
     mongo.init_app(app)
