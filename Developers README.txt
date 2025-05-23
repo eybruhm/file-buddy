@@ -1,5 +1,13 @@
 # File Buddy - Developer Documentation
 
+## Quick Start
+For those familiar with Flask and MongoDB, here's the TL;DR:
+1. Clone repo & install requirements
+2. Set up .env with MongoDB & Gmail credentials
+3. Run `python main.py`
+Full setup instructions in "Project Setup Guide" below.
+
+
 ## File Dictionary
 
 ### Root Directory
@@ -31,6 +39,8 @@
 - `css/`: Contains custom CSS styles for the application.
 - Logo files: `logo-qcu.png`, `logo-filebuddy.png` for branding.
 - Profile pictures: Various `.jpg` and `.jfif` files for team members.
+
+## Project Setup Guide
 
 ## Project Setup Guide
 
@@ -107,3 +117,76 @@ MAIL_PASSWORD=your_gmail_app_password
 - Check logs in Render dashboard for deployment issues
 - Test email functionality with temporary email accounts
 - Use git branches for new features
+
+
+
+## Code Structure Documentation
+
+### __init__.py Variables
+- `mail`: Flask-Mail instance for handling email operations like verification and password reset.
+- `mongo`: PyMongo instance for MongoDB database operations and GridFS file storage.
+- `login_manager`: Flask-Login manager for handling user authentication and sessions.
+- `logger`: Logging instance configured for application-wide error and info tracking.
+
+### __init__.py Functions
+- `create_app()`: Application factory that configures Flask app, initializes extensions, and sets up MongoDB collections and indexes.
+- `load_user(user_id)`: User loader callback for Flask-Login to manage user sessions.
+
+### models.py Classes
+- `User`: UserMixin class implementing required Flask-Login methods for user authentication and session management.
+
+### models.py Functions
+- `update_user_file_counts(user_id)`: Updates user's file statistics by type (image, video, document, etc.).
+- `create_user(username, email, password)`: Creates new user with hashed password and initializes storage metrics.
+- `save_file_metadata(...)`: Stores uploaded file information in MongoDB with optional password protection.
+
+### account_routes.py Routes
+- `@home('/')`: Landing page with welcome message and authentication options.
+- `@login('/login')`: User authentication with email and password validation.
+- `@signup('/signup')`: New user registration with email verification.
+- `@email_verification('/email_verification')`: Validates email verification code for new signups.
+- `@dashboard('/dashboard')`: User's main dashboard after authentication.
+- `@profile('/profile')`: User profile management and file statistics.
+- `@browse('/browse')`: Search and browse files/users with filtering options.
+- `@forgot_password_identify_email('/forgot-password-identify-email')`: Step 1 of password recovery.
+- `@forgot_password_verify_otp('/forgot-password-verify-otp')`: Step 2 of password recovery with OTP.
+- `@change_password('/change-password')`: Final step of password recovery process.
+- `@update_username('/update-username')`: Updates user's username with validation.
+- `@update_password('/update-password')`: Changes user's password with security checks.
+
+### account_routes.py Functions
+- `send_verification_email(email, code)`: Sends verification code for new user registration.
+- `forgot_password_verification_email(email, code)`: Sends OTP for password recovery.
+- `block_logged_in_users(f)`: Decorator preventing authenticated users from accessing auth pages.
+- `require_forgot_email_identification(f)`: Decorator ensuring proper flow of password recovery.
+- `require_verified_otp(f)`: Decorator validating OTP verification before password reset.
+
+### file_routes.py Routes
+- `@upload_file('/upload')`: Handles file uploads with optional password protection.
+- `@download_file('/download/<file_id>')`: Securely serves files with password validation.
+- `@verify_password('/verify-password')`: Validates password for protected file access.
+- `@delete_file('/delete/<file_id>')`: Removes file from GridFS and updates user statistics.
+
+### file_routes.py Functions
+- `get_gridfs()`: Returns GridFS instance for file storage operations.
+
+## Security Features
+- Password hashing for user accounts and protected files
+- Email verification for new registrations
+- OTP-based password recovery
+- Session management for secure file access
+- GridFS for secure file storage
+- Rate limiting on sensitive operations [not implemented yet]
+
+## Database Schema
+- Users Collection: Stores user profiles, authentication, and file statistics
+- Files Collection: Maintains file metadata and access controls
+- GridFS: Handles actual file storage and retrieval
+
+## Future Enhancements
+- Implement file sharing between users
+- Add file version control
+- Enable file preview for supported formats
+- Implement rate limiting
+- Add user storage quotas
+- Enable file expiration dates 
