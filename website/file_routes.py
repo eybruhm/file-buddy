@@ -8,6 +8,7 @@ import os
 import io
 from io import BytesIO
 from . import mongo
+from .models import update_user_file_counts
 
 # Create the blueprint
 file_routes = Blueprint("file_routes", __name__)
@@ -57,17 +58,8 @@ def upload_file():
                 "file_url": str(gridfs_id)
             })
 
-            # Update user's upload stats
-            mongo.db.users.update_one(
-                {"_id": ObjectId(current_user.get_id())},
-                {
-                    "$inc": {
-                        "storage_used": file_size,
-                        "total_uploads": 1,
-                        f"uploads_count.{file_type}": 1
-                    }
-                }
-            )
+            # Update user's file counts
+            update_user_file_counts(current_user.get_id())
 
             flash("File uploaded successfully", "success")
             return redirect(url_for("file_routes.upload_file"))
@@ -141,6 +133,9 @@ def delete_file(file_id):
         # Delete from GridFS and database
         fs.delete(ObjectId(file["file_url"]))
         mongo.db.files.delete_one({"_id": ObjectId(file_id)})
+
+        # Update user's file counts
+        update_user_file_counts(current_user.get_id())
 
         flash("File deleted", "success")
         return redirect(url_for("account_routes.browse"))

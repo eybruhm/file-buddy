@@ -36,6 +36,55 @@ class User(UserMixin):
     def is_anonymous(self):
         return False
 
+# ✅ Function to update user's file counts
+def update_user_file_counts(user_id):
+    """Updates the user's file counts based on current files in database."""
+    try:
+        # Initialize counts
+        counts = {
+            "image": 0,
+            "video": 0,
+            "document": 0,
+            "audio": 0,
+            "others": 0
+        }
+        
+        # Count files by type
+        pipeline = [
+            {"$match": {"owner_id": user_id}},
+            {"$group": {
+                "_id": "$file_type",
+                "count": {"$sum": 1}
+            }}
+        ]
+        
+        results = list(mongo.db.files.aggregate(pipeline))
+        
+        # Update counts dictionary
+        for result in results:
+            file_type = result["_id"]
+            if file_type in counts:
+                counts[file_type] = result["count"]
+        
+        # Calculate total uploads
+        total_uploads = sum(counts.values())
+        
+        # Update user document
+        mongo.db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {
+                "$set": {
+                    "uploads_count": counts,
+                    "total_uploads": total_uploads
+                }
+            }
+        )
+        
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Error updating user file counts: {str(e)}")
+        return False
+
 # ✅ Function to Create a New User
 def create_user(username, email, password):
     """Creates a new user in MongoDB."""
@@ -89,6 +138,9 @@ def save_file_metadata(file_id, filename, file_type, file_extension, file_size, 
 
         # ✅ Insert into the "files" collection
         mongo.db.files.insert_one(metadata)
+        
+        # Update user's file counts
+        update_user_file_counts(owner_id)
     except Exception as e:
         current_app.logger.error(f"Error saving file metadata: {str(e)}")
         raise
