@@ -345,25 +345,22 @@
                             {% endif %}
                         </div>
                         <div class="mt-auto">
-                            {% if file.is_owner %}
+                            {% if file.is_protected and not file.is_owner %}
+                                <button class="btn btn-primary btn-sm" onclick="askPassword('{{ file.file_id }}')">
+                                    <i class="bi bi-key-fill me-1"></i>Download
+                                </button>
+                            {% else %}
                                 <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">
                                     <i class="bi bi-download me-1"></i>Download
                                 </a>
+                            {% endif %}
+                            
+                            {% if file.is_owner %}
                                 <form method="POST" action="{{ url_for('file_routes.delete_file', file_id=file.file_id) }}" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm">
                                         <i class="bi bi-trash me-1"></i>Delete
                                     </button>
-                                </form>                        
-                            {% else %}
-                                {% if file.is_protected %}
-                                    <button class="btn btn-primary btn-sm" onclick="askPassword('{{ file.file_id }}')">
-                                        <i class="bi bi-key-fill me-1"></i>Download
-                                    </button>
-                                {% else %}
-                                    <a href="{{ url_for('file_routes.download_file', file_id=file.file_id) }}" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-download me-1"></i>Download
-                                    </a>
-                                {% endif %}
+                                </form>
                             {% endif %}
                         </div>
                     </div>

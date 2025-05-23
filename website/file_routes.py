@@ -1,6 +1,7 @@
-from flask import Blueprint, request, redirect, url_for, flash, send_file, abort, make_response, current_app
+from flask import Blueprint, request, redirect, url_for, flash, send_file, abort, make_response, current_app, session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 import gridfs
 from bson.objectid import ObjectId
 from datetime import datetime
@@ -35,7 +36,8 @@ def upload_file():
             # Metadata
             file_type = request.form.get("file_type", "others").lower()
             password = request.form.get("password")
-            password = password if password else None
+            # Hash password if provided
+            password_hashed = generate_password_hash(password) if password else None
 
             file_size = len(uploaded_file.read())  # get file size in bytes
             uploaded_file.seek(0)  # reset stream to beginning for saving
@@ -54,7 +56,8 @@ def upload_file():
                 "file_size": file_size,
                 "owner_id": current_user.get_id(),
                 "upload_date": datetime.utcnow(),
-                "password": password,
+                "password_hashed": password_hashed,  # Store hashed password instead of plain text
+                "is_protected": password_hashed is not None,  # Add flag for password protection
                 "file_url": str(gridfs_id)
             })
 
@@ -79,6 +82,14 @@ def download_file(file_id):
             flash("File not found", "danger")
             return redirect(url_for("account_routes.browse"))
 
+        # Check if file is password protected and user is not the owner
+        if file.get("password_hashed") and str(file["owner_id"]) != current_user.get_id():
+            # Check if file has been verified (password entered correctly)
+            verified_files = session.get('verified_files', [])
+            if file_id not in verified_files:
+                flash("Please enter password to download this file", "warning")
+                return redirect(url_for("account_routes.browse"))
+
         # Get GridFS instance
         fs = get_gridfs()
         
@@ -86,6 +97,12 @@ def download_file(file_id):
         response = make_response(file_data.read())
         response.headers.set("Content-Type", "application/octet-stream")
         response.headers.set("Content-Disposition", f"attachment; filename={file['filename']}")
+
+        # Remove file from verified files after successful download
+        if 'verified_files' in session and file_id in session['verified_files']:
+            session['verified_files'].remove(file_id)
+            session.modified = True
+
         return response
     except Exception as e:
         current_app.logger.error(f"Error downloading file: {str(e)}")
@@ -104,8 +121,19 @@ def verify_password():
         if not file:
             return {"success": False, "message": "File not found"}, 400
 
-        if file.get("password") != password:
+        # Check if file is password protected
+        if not file.get("password_hashed"):
+            return {"success": False, "message": "File is not password protected"}, 400
+
+        # Verify password using check_password_hash
+        if not check_password_hash(file["password_hashed"], password):
             return {"success": False, "message": "Incorrect password"}, 400
+
+        # Store verified file ID in session
+        if 'verified_files' not in session:
+            session['verified_files'] = []
+        if file_id not in session['verified_files']:
+            session['verified_files'].append(file_id)
 
         # If password is correct, send the download URL
         download_url = url_for('file_routes.download_file', file_id=file_id, _external=True)

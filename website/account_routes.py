@@ -88,6 +88,7 @@ def require_verified_otp(f):
 def home():
     if current_user.is_authenticated:  # ✅ If logged in, redirect to dashboard
         return redirect(url_for('account_routes.dashboard'))
+    flash("File Buddy is taking its first steps! You can already upload, browse, download, and protect your files. Thanks for your patience as we build something even better!", "info")
     return render_template('index.html')
 
 # ===========================
@@ -211,7 +212,7 @@ def browse():
                 "file_type": file["file_type"],
                 "file_size_mb": round(file["file_size"] / (1024 * 1024), 2),
                 "owner_username": owner_username,
-                "is_protected": bool(file.get("password")),
+                "is_protected": bool(file.get("password_hashed")),
                 "is_owner": (file["owner_id"] == current_user.get_id())
             })
 
@@ -233,14 +234,20 @@ def profile():
     raw_files = list(mongo.db.files.find({'owner_id': user_id}))
     files = []
     for f in raw_files:
-        f['file_size_mb'] = round(f.get('file_size', 0) / (1024 * 1024), 2)  # Convert bytes to MB
-        files.append(f)
+        file_data = {
+            'file_id': str(f['_id']),
+            'filename': f['filename'],
+            'file_type': f.get('file_type', 'others'),
+            'file_size_mb': round(f.get('file_size', 0) / (1024 * 1024), 2),
+            'is_protected': bool(f.get('password_hashed'))  # Use password_hashed instead of password
+        }
+        files.append(file_data)
 
     total_files = len(files)
     total_size_mb = 0
     count_docs = count_images = count_videos = count_audio = count_others = 0
 
-    for f in files:
+    for f in raw_files:
         category = f.get('file_type', 'other').lower()
         size = f.get('file_size', 0)
         total_size_mb += size / (1024 * 1024)

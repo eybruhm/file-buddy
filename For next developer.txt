@@ -1,0 +1,109 @@
+# File Buddy - Developer Documentation
+
+## File Dictionary
+
+### Root Directory
+- `main.py`: Entry point of the application. Initializes Flask app with debug mode and configures logging. Sets up the server to run on specified port.
+- `Procfile`: Deployment configuration for Render. Contains command to run the application using gunicorn.
+- `requirements.txt`: Lists all Python dependencies and their versions required to run the project.
+- `.env`: Configuration file containing sensitive data like MongoDB URI, email credentials, and Flask secret key.
+
+### /website Directory
+- `__init__.py`: Flask application factory. Initializes MongoDB, Flask-Login, Flask-Mail, and registers blueprints. Sets up database collections and indexes.
+- `models.py`: Defines User class and database operations. Handles user authentication, file metadata storage, and file count tracking.
+- `account_routes.py`: Handles all user-related routes including authentication, profile management, and password recovery using email verification.
+- `file_routes.py`: Manages file operations including upload, download, deletion, and password protection using GridFS for file storage.
+
+### /website/templates
+- `base.html`: Base template with navigation bar, footer, and common styling. All other templates extend from this.
+- `index.html`: Landing page template showing welcome message and login/signup options.
+- `login.html`: User login form with email and password fields.
+- `signup.html`: Registration form collecting username, email, and password.
+- `emailverify.html`: Email verification page for new user registration.
+- `home.html`: Dashboard template showing user's overview after login.
+- `upload.html`: File upload interface with file selection and optional password protection.
+- `browse.html`: File browsing interface with search, filtering, and file management options.
+- `profile.html`: User profile page showing account details and uploaded files.
+- `developers.html`: Team information page with developer profiles.
+- `forgot1.html`, `forgot2.html`, `forgot3.html`: Three-step password recovery process templates.
+
+### /website/static
+- `css/`: Contains custom CSS styles for the application.
+- Logo files: `logo-qcu.png`, `logo-filebuddy.png` for branding.
+- Profile pictures: Various `.jpg` and `.jfif` files for team members.
+
+## Project Setup Guide
+
+### 1. Local Development Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/eybruhm/file-buddy.git
+   cd file-buddy
+   ```
+
+2. Create and activate virtual environment:
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate  # On Windows
+   source venv/bin/activate  # On Unix/MacOS
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### 2. MongoDB Setup
+1. Create MongoDB Atlas account at https://www.mongodb.com/cloud/atlas
+2. Create new project and cluster
+3. Set up database access:
+   - Create database user with read/write permissions
+   - Add IP address to access list (0.0.0.0/0 for all IPs)
+4. Get connection string from Atlas
+5. Install MongoDB Compass
+6. Connect to Atlas using the connection string
+7. Create database named "FileSharingDB"
+8. Collections will be automatically created by the application:
+   - users: Stores user information and file statistics
+   - files: Stores file metadata
+   - fs.files and fs.chunks: Created by GridFS for file storage
+
+### 3. Environment Variables
+Create `.env` file with these variables:
+```
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/FileSharingDB?retryWrites=true&w=majority
+FLASK_SECRET_KEY=your_secret_key_here
+MAIL_USERNAME=your_gmail_address
+MAIL_PASSWORD=your_gmail_app_password
+```
+
+### 4. Email Setup (Gmail)
+1. Enable 2-Step Verification in Google Account
+2. Generate App Password:
+   - Go to Google Account Security
+   - Select App Passwords
+   - Generate password for "Mail" app
+   - Use this password in MAIL_PASSWORD environment variable
+
+### 5. Render Deployment
+1. Create new Web Service in Render
+2. Connect to GitHub repository
+3. Configure:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn main:app`
+   - Environment Variables: Add all from `.env`
+4. Deploy
+
+### 6. Important Notes
+- MongoDB Atlas IP Whitelist: Add 0.0.0.0/0 to allow Render servers
+- File Size: Default max upload size is 5GB per user [not finished/coded]
+- Email: System uses Gmail SMTP for sending verification codes
+- Security: All passwords are hashed before storage
+- File Storage: Uses GridFS for efficient handling of large files
+
+### 7. Development Tips
+- Debug mode is enabled in main.py for local development
+- Use MongoDB Compass to monitor database operations
+- Check logs in Render dashboard for deployment issues
+- Test email functionality with temporary email accounts
+- Use git branches for new features
