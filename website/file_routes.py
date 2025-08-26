@@ -134,6 +134,7 @@ def verify_password():
             session['verified_files'] = []
         if file_id not in session['verified_files']:
             session['verified_files'].append(file_id)
+            session.modified = True
 
         # If password is correct, send the download URL
         download_url = url_for('file_routes.download_file', file_id=file_id, _external=True)
