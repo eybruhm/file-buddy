@@ -4,7 +4,9 @@
 
 🔗 **[Live Production Application](https://file-buddy-r1qc.onrender.com/)**
 
-📹 **[Project Demo Video](https://drive.google.com/drive/u/3/folders/1FCIN5OgU1e9eJ_r51DCIQUGeNLz3t8cB)**
+💻 **[Desktop Demo Video](https://drive.google.com/file/d/1UPybM28_kpLkgsEaVX36EiMk4wCcAYDn/view)**
+
+📱 **[Mobile Demo Video](https://drive.google.com/file/d/1owLMxtqUR0gBKd9Xbb4xZ1_a2ud7pkE2/view)**
 
 ---
 
