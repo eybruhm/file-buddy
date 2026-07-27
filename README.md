@@ -40,12 +40,95 @@ The application utilizes a Client–Server architecture with Server-Side Renderi
 
 ## 🚀 Local Environment Bootstrapping (Quick Start)
 
-Follow these sequential steps to run the application locally.
+Follow these steps to set up and run the application locally.
 
-**1. Clone and Virtual Environment Setup**
+### 1. Clone the Repository
+
 ```bash
-git clone [https://github.com/eybruhm/file-buddy.git](https://github.com/eybruhm/file-buddy.git)
+git clone https://github.com/eybruhm/file-buddy.git
 cd file-buddy
+```
+
+---
+
+### 2. Create and Activate a Virtual Environment
+
+Create a Python virtual environment:
+
+```bash
 python -m venv venv
+```
+
+Activate the virtual environment:
+
+**Windows**
+```bash
 venv\Scripts\activate
+```
+
+**Linux / macOS**
+```bash
+source venv/bin/activate
+```
+
+Install the required dependencies:
+
+```bash
 pip install -r requirements.txt
+```
+
+---
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the project's root directory and add the following:
+
+```env
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/FileSharingDB?retryWrites=true&w=majority
+
+FLASK_SECRET_KEY=your_secret_key_here
+
+MAIL_USERNAME=your_gmail_address
+MAIL_PASSWORD=your_gmail_app_password
+```
+
+Replace the placeholder values with your own credentials.
+
+---
+
+### 4. Initialize the Database
+
+Before running the application:
+
+- Ensure your **MongoDB Atlas** cluster is running.
+- Create a database named **`FileSharingDB`**.
+- Whitelist your IP address in MongoDB Atlas.
+  - For development purposes, you may use `0.0.0.0/0` to allow all IP addresses.
+
+When the application starts for the first time, it will automatically create the following collections:
+
+- `users`
+- `files`
+- `fs.files`
+- `fs.chunks`
+
+---
+
+### 5. Run the Application
+
+Start the Flask server:
+
+```bash
+python main.py
+```
+
+If everything is configured correctly, the application should now be running locally.
+
+---
+
+# 👥 Developers
+
+| Member | Roles |
+|---------|-------|
+| **Abram** | • Full-Stack Developer<br>• System Architect<br>• System Analyst<br>• Integration<br>• Database Manager<br>• Documentation |
+| **Julius** | • Project Manager<br>• Frontend Developer<br>• UI/UX Designer<br>• Documentation |
